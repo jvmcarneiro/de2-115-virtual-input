@@ -6,17 +6,17 @@ Virtual GUI for controlling the Altera DE2-115 board.
 
 ## Running
 ```bash
-python3 input_gui.py
+python3 de2_115_gui.py
 ```
-Depending on your OS the python 3 binaries may called `python`.
+The `python3` command may called `python` on your environment.
 
 ## Milestones
 - [x] Button and switch GUI
-- [x] Press function skeleton
+- [x] Basic button press handling
 - [ ] Messages for chosen communication protocol (USB, serial or 7-pin general purpose IO)
-- [ ] Protocol handling on the FPGA
-- [ ] Instructions for integrating with user projects
-- [ ] Support for other protocols via menus
+- [ ] Protocol message handling on the FPGA
+- [ ] Adapting for easy integration with Quartus projects
+- [ ] Support for other protocols via menu
 
 
 
