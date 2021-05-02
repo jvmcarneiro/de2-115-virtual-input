@@ -3,26 +3,32 @@ Click the buttons to send corresponding input to the FPGA kit.
 """
 
 import tkinter as tk
+from functools import partial
+
 
 def btn3_press():
     """Send button 3 input after release."""
     print("KEY[3] pressed")
     # send button 3 press signal
 
+
 def btn2_press():
     """Send button 2 input after release."""
     print("KEY[2] pressed")
     # send button 2 press signal
+
 
 def btn1_press():
     """Send button 1 input after release."""
     print("KEY[1] pressed")
     # send button 1 press signal
 
+
 def btn0_press():
     """Send button 0 input after release."""
     print("KEY[0] pressed")
     # send button 0 press signal
+
 
 def sw_toggle(num):
     """Update current switch state and send input to board."""
@@ -37,6 +43,7 @@ def sw_toggle(num):
         sw[num].configure(relief="raised")
         print("SW["+str(num)+"] turned OFF")
         # send switch off signal
+
 
 root = tk.Tk()
 
@@ -75,13 +82,15 @@ sw_row1.pack(padx=10, pady=5)
 swon_img = tk.PhotoImage(file="img/switch_on.png")
 swoff_img = tk.PhotoImage(file="img/switch_off.png")
 
-sw = [None] * 18
+sw = [tk.Button()] * 18
 for i in reversed(range(18)):
     if i > 8:
-        sw[i] = tk.Button(sw_row0, image=swoff_img, text="["+str(i)+"]", compound="top")
+        sw[i] = tk.Button(sw_row0, image=swoff_img,
+                          text="["+str(i).zfill(2)+"]", compound="top")
     else:
-        sw[i] = tk.Button(sw_row1, image=swoff_img, text="["+str(i)+"]", compound="top")
-    sw[i].config(command=lambda arg=i:sw_toggle(arg))
+        sw[i] = tk.Button(sw_row1, image=swoff_img,
+                          text="["+str(i).zfill(2)+"]", compound="top")
+    sw[i].config(command=partial(sw_toggle, i))
     sw[i].pack(side="left", padx=1)
 
 root.mainloop()
