@@ -6,10 +6,15 @@ import tkinter as tk
 from functools import partial
 
 
+def enable_power():
+    """Simple function handle for enabling the power switch."""
+    power_sw.configure(state="normal")
+
+
 def power_toggle():
     """Powers board on and off in a 20 seconds minimum interval."""
-    state = power_sw.cget("relief")
-    if state == "raised":
+    curr_relief = power_sw.cget("relief")
+    if curr_relief == "raised":
         power_sw.configure(image=powon_img)
         power_sw.configure(relief="sunken")
         print("POW turned ON")
@@ -19,6 +24,8 @@ def power_toggle():
         power_sw.configure(relief="raised")
         print("POW turned OFF")
         # send switch off signal
+    power_sw.configure(state="disabled")
+    root_entry.after(20000, enable_power)
 
 
 def btn3_press():
@@ -47,8 +54,8 @@ def btn0_press():
 
 def sw_toggle(num):
     """Update current switch state and send input to board."""
-    state = sw[num]["relief"]
-    if state == "raised":
+    curr_relief = sw[num]["relief"]
+    if curr_relief == "raised":
         sw[num].configure(image=swon_img)
         sw[num].configure(relief="sunken")
         print("SW["+str(num)+"] turned ON")
@@ -61,54 +68,59 @@ def sw_toggle(num):
 
 
 root = tk.Tk()
-root.rowconfigure(1, weight=1)
-root.columnconfigure(0, weight=1, uniform="sides")
-root.columnconfigure(1, weight=2)
-root.columnconfigure(2, weight=1, uniform="sides")
-root.minsize(542, 369)
-
+root.rowconfigure(0, weight=1)
+root.rowconfigure(4, weight=1)
+root.columnconfigure(0, weight=1, uniform="margin")
+root.columnconfigure(2, weight=1, uniform="margin")
+root_entry = tk.Entry(root)
 
 display = tk.Label(root, text="DE2-115 VIRTUAL INPUT", fg="black",
                    font=("Courier", 20, "bold"))
-power = tk.Frame(root)
 buttons = tk.Frame(root)
 switches = tk.Frame(root)
+top_margin = tk.Frame(root)
+bottom_margin = tk.Frame(root)
+left_margin = tk.Frame(root)
+right_margin = tk.Frame(root)
 
 
-display.grid(row=0, column=0, columnspan=3, pady=10)
-power.grid(row=1, column=0, pady=10)
-buttons.grid(row=1, column=1)
-switches.grid(row=2, column=0, columnspan=3, pady=10)
+display.grid(row=1, column=1, sticky="ew")
+buttons.grid(row=2, column=1, pady=20, sticky="ew")
+switches.grid(row=3, column=1, sticky="ew")
+top_margin.grid(row=0, column=0, columnspan=3, ipady=10, sticky="nsew")
+bottom_margin.grid(row=4, column=0, columnspan=3, ipady=10, sticky="nsew")
+left_margin.grid(row=0, column=0, rowspan=5, ipadx=10, sticky="nsew")
+right_margin.grid(row=0, column=2, rowspan=5, ipadx=10, sticky="nsew")
 
 
 powoff_img = tk.PhotoImage(file="img/power_off.png")
 powon_img = tk.PhotoImage(file="img/power_on.png")
-power_sw = tk.Button(power, image=powoff_img, text="POW", compound="top",
+power_sw = tk.Button(buttons, image=powoff_img, text="POW", compound="top",
                      command=power_toggle)
-power_sw.grid()
+power_sw.pack(side="left")
 
-
-btn3_img = tk.PhotoImage(file="img/pbutton3_unpressed.png")
-btn3 = tk.Button(buttons, image=btn3_img, command=btn3_press)
-btn3.grid(row=0, column=0, padx=5)
-
-btn2_img = tk.PhotoImage(file="img/pbutton2_unpressed.png")
-btn2 = tk.Button(buttons, image=btn2_img, command=btn2_press)
-btn2.grid(row=0, column=1, padx=5)
-
-btn1_img = tk.PhotoImage(file="img/pbutton1_unpressed.png")
-btn1 = tk.Button(buttons, image=btn1_img, command=btn1_press)
-btn1.grid(row=0, column=2, padx=5)
 
 btn0_img = tk.PhotoImage(file="img/pbutton0_unpressed.png")
 btn0 = tk.Button(buttons, image=btn0_img, command=btn0_press)
-btn0.grid(row=0, column=3, padx=5)
+btn0.pack(side="right", padx=2)
+
+btn1_img = tk.PhotoImage(file="img/pbutton1_unpressed.png")
+btn1 = tk.Button(buttons, image=btn1_img, command=btn1_press)
+btn1.pack(side="right", padx=2)
+
+btn2_img = tk.PhotoImage(file="img/pbutton2_unpressed.png")
+btn2 = tk.Button(buttons, image=btn2_img, command=btn2_press)
+btn2.pack(side="right", padx=2)
+
+btn3_img = tk.PhotoImage(file="img/pbutton3_unpressed.png")
+btn3 = tk.Button(buttons, image=btn3_img, command=btn3_press)
+btn3.pack(side="right", padx=2)
 
 
 sw_row0 = tk.Frame(switches)
 sw_row1 = tk.Frame(switches)
-sw_row0.pack(padx=10)
-sw_row1.pack(padx=10, pady=5)
+sw_row0.pack()
+sw_row1.pack(pady=(5, 0))
 
 swon_img = tk.PhotoImage(file="img/switch_on.png")
 swoff_img = tk.PhotoImage(file="img/switch_off.png")
