@@ -28,28 +28,16 @@ def power_toggle():
     root_entry.after(20000, enable_power)
 
 
-def btn3_press():
-    """Send button 3 input after release."""
-    print("KEY[3] pressed")
+def btn_press(num):
+    """Enable current button signal on press."""
+    print("KEY["+str(num)+"] pressed")
     # send button 3 press signal
 
 
-def btn2_press():
-    """Send button 2 input after release."""
-    print("KEY[2] pressed")
-    # send button 2 press signal
-
-
-def btn1_press():
-    """Send button 1 input after release."""
-    print("KEY[1] pressed")
-    # send button 1 press signal
-
-
-def btn0_press():
-    """Send button 0 input after release."""
-    print("KEY[0] pressed")
-    # send button 0 press signal
+def btn_release(num):
+    """Disable current button signal on release."""
+    print("KEY["+str(num)+"] released")
+    # send button 3 press signal
 
 
 def sw_toggle(num):
@@ -101,19 +89,27 @@ power_sw.pack(side="left")
 
 
 btn0_img = tk.PhotoImage(file="img/pbutton0_unpressed.png")
-btn0 = tk.Button(buttons, image=btn0_img, command=btn0_press)
+btn0 = tk.Button(buttons, image=btn0_img)
+btn0.bind("<ButtonPress>", lambda event: btn_press(0))
+btn0.bind("<ButtonRelease>", lambda event: btn_release(0))
 btn0.pack(side="right", padx=2)
 
 btn1_img = tk.PhotoImage(file="img/pbutton1_unpressed.png")
-btn1 = tk.Button(buttons, image=btn1_img, command=btn1_press)
+btn1 = tk.Button(buttons, image=btn1_img)
+btn1.bind("<ButtonPress>", lambda event: btn_press(1))
+btn1.bind("<ButtonRelease>", lambda event: btn_release(1))
 btn1.pack(side="right", padx=2)
 
 btn2_img = tk.PhotoImage(file="img/pbutton2_unpressed.png")
-btn2 = tk.Button(buttons, image=btn2_img, command=btn2_press)
+btn2 = tk.Button(buttons, image=btn2_img)
+btn2.bind("<ButtonPress>", lambda event: btn_press(2))
+btn2.bind("<ButtonRelease>", lambda event: btn_release(2))
 btn2.pack(side="right", padx=2)
 
 btn3_img = tk.PhotoImage(file="img/pbutton3_unpressed.png")
-btn3 = tk.Button(buttons, image=btn3_img, command=btn3_press)
+btn3 = tk.Button(buttons, image=btn3_img)
+btn3.bind("<ButtonPress>", lambda event: btn_press(3))
+btn3.bind("<ButtonRelease>", lambda event: btn_release(3))
 btn3.pack(side="right", padx=2)
 
 
