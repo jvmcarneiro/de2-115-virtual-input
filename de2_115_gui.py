@@ -12,21 +12,78 @@ def refresh_devices():
     """Refresh list of available serial devices."""
     ports = list(serial.tools.list_ports.comports())
     last_index = device_menu.index(tk.END) - 1
+    dev_to_pop = []
+    port_to_pop = []
+
+    # Check if devices in menu are also in ports list
     for index in range(0, last_index):
         dev_label = device_menu.entrycget(index, 'label')
-        if dev_label in ports:
-            ports.pop(ports.index(dev_label))
-        else:
-            device_menu.delete(index)
+        for port in ports:
+            dev_split = dev_label.split()
+            if port.device == dev_split[0]:
+                if port.description == dev_split[2]:
+                    port_to_pop.append(port)
+            else:
+                dev_to_pop.append(dev_label)
+
+    # Remove not found devices from menu
+    for dev in dev_to_pop:
+        index = device_menu.index(dev)
+        device_menu.delete(index)
+
+    # Remove repeat devices from ports list
+    for port in port_to_pop:
+        index = ports.index(port)
+        ports.pop(index)
+
+    # Add new ports to device menu
     for port in ports:
-        device_menu.insert_command(last_index - 1, label=port)
+        dev_label = port.device + " - " + port.description
+        device_menu.insert_command(last_index - 1, label=dev_label,
+                                   command=lambda: toggle_connect(dev_label))
+
+    # Let user know that device menu is empty
     if device_menu.type(0) == tk.SEPARATOR:
         device_menu.insert_command(0, label="No device found",
                                    state=tk.DISABLED)
 
 
+def toggle_connect(dev_label):
+    """Attempt to connect to (or disconnect from) device in sub-menu."""
+    serial_read = "hi_de2"
+
+    # Close existing connection
+    if ser.is_open:
+        old_connection = ser.port
+        index = device_menu.index(dev_label)
+        device_menu.entryconfigure(index, color="black")
+        display.configure(text="No connection", fg="black")
+        # TODO: send reset signal and close
+
+        # Return if disconnected from last connection
+        if old_connection == dev_label.split()[0]:
+            return
+
+    # Attempt to connect to device
+    ser.port = dev_label.split()[0]
+    ser.open()
+    if ser.is_open():
+        connection = "Connecting to " + dev_label + "..."
+        display.configure(text=connection, fg="black")
+        serial_stream = ser.read_until(serial_read, 100)
+        if serial_read in serial_stream:
+            connection = "Connected to " + dev_label
+            display.configure(text=connection, fg="green")
+            index = device_menu.index(dev_label)
+            device_menu.entryconfigure(index, color="green")
+            # TODO: send reset signal
+            return
+    connection = "Couldn't connect to " + dev_label
+    display.configure(text=connection, fg="black")
+
+
 def enable_power():
-    """Simple function handle for enabling the power switch."""
+    """Enable the power switch button."""
     power_sw.configure(state="normal")
 
 
@@ -37,12 +94,12 @@ def power_toggle():
         power_sw.configure(image=powon_img)
         power_sw.configure(relief="sunken")
         print("POW turned ON")
-        # send switch on signal
+        # TODO: send switch on signal
     else:
         power_sw.configure(image=powoff_img)
         power_sw.configure(relief="raised")
         print("POW turned OFF")
-        # send switch off signal
+        # TODO: send switch off signal
     power_sw.configure(state="disabled")
     root_entry.after(20000, enable_power)
 
@@ -50,13 +107,13 @@ def power_toggle():
 def btn_press(num):
     """Enable current button signal on press."""
     print("KEY["+str(num)+"] pressed")
-    # send button 3 press signal
+    # TODO: send button 3 press signal
 
 
 def btn_release(num):
     """Disable current button signal on release."""
     print("KEY["+str(num)+"] released")
-    # send button 3 press signal
+    # TODO: send button 3 press signal
 
 
 def sw_toggle(num):
@@ -66,13 +123,16 @@ def sw_toggle(num):
         sw[num].configure(image=swon_img)
         sw[num].configure(relief="sunken")
         print("SW["+str(num)+"] turned ON")
-        # send switch on signal
+        # TODO: send switch on signal
     else:
         sw[num].configure(image=swoff_img)
         sw[num].configure(relief="raised")
         print("SW["+str(num)+"] turned OFF")
-        # send switch off signal
+        # TODO: send switch off signal
 
+
+# Variables
+ser = serial.Serial(timeout=3)
 
 # Set up grid with resizeable margins and maintain buttons' position
 root = tk.Tk()
@@ -82,8 +142,8 @@ root.columnconfigure(0, weight=1, uniform="margin")
 root.columnconfigure(2, weight=1, uniform="margin")
 root_entry = tk.Entry(root)
 
-display = tk.Label(root, text="DE2-115 VIRTUAL INPUT", fg="black",
-                   font=("Courier", 20, "bold"))
+display = tk.Label(root, text="Not connected", fg="black",
+                   font=("Helvetica", 12, "bold"))
 buttons = tk.Frame(root)
 switches = tk.Frame(root)
 top_margin = tk.Frame(root)
@@ -109,7 +169,7 @@ menubar.add_cascade(label="File", menu=file_menu)
 
 file_menu.add_cascade(label="Devices", menu=device_menu)
 file_menu.add_separator()
-file_menu.add_command(label="Exit", command=root.quit)
+file_menu.add_command(label="Exit", command=root.destroy)
 
 device_menu.add_separator()
 device_menu.add_command(label="Refresh", command=refresh_devices)
@@ -167,4 +227,5 @@ for i in reversed(range(18)):
     sw[i].pack(side="left", padx=1)
 
 root.configure(menu=menubar)
+root.title("DE2-115 Virtual Input")
 root.mainloop()
