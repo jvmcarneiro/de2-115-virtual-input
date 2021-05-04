@@ -4,6 +4,25 @@ Click the buttons to send corresponding input to the FPGA kit.
 
 import tkinter as tk
 from functools import partial
+import serial                   # type: ignore
+import serial.tools.list_ports  # type: ignore
+
+
+def refresh_devices():
+    """Refresh list of available serial devices."""
+    ports = list(serial.tools.list_ports.comports())
+    last_index = device_menu.index(tk.END) - 1
+    for index in range(0, last_index):
+        dev_label = device_menu.entrycget(index, 'label')
+        if dev_label in ports:
+            ports.pop(ports.index(dev_label))
+        else:
+            device_menu.delete(index)
+    for port in ports:
+        device_menu.insert_command(last_index - 1, label=port)
+    if device_menu.type(0) == tk.SEPARATOR:
+        device_menu.insert_command(0, label="No device found",
+                                   state=tk.DISABLED)
 
 
 def enable_power():
@@ -55,6 +74,7 @@ def sw_toggle(num):
         # send switch off signal
 
 
+# Set up grid with resizeable margins and maintain buttons' position
 root = tk.Tk()
 root.rowconfigure(0, weight=1)
 root.rowconfigure(4, weight=1)
@@ -71,7 +91,6 @@ bottom_margin = tk.Frame(root)
 left_margin = tk.Frame(root)
 right_margin = tk.Frame(root)
 
-
 display.grid(row=1, column=1, sticky="ew")
 buttons.grid(row=2, column=1, pady=20, sticky="ew")
 switches.grid(row=3, column=1, sticky="ew")
@@ -81,12 +100,28 @@ left_margin.grid(row=0, column=0, rowspan=5, ipadx=10, sticky="nsew")
 right_margin.grid(row=0, column=2, rowspan=5, ipadx=10, sticky="nsew")
 
 
+# Create menus
+menubar = tk.Menu(root)
+file_menu = tk.Menu(menubar, tearoff=0)
+device_menu = tk.Menu(file_menu, tearoff=0)
+
+menubar.add_cascade(label="File", menu=file_menu)
+
+file_menu.add_cascade(label="Devices", menu=device_menu)
+file_menu.add_separator()
+file_menu.add_command(label="Exit", command=root.quit)
+
+device_menu.add_separator()
+device_menu.add_command(label="Refresh", command=refresh_devices)
+device_menu.insert_command(0, label="No device found", state=tk.DISABLED)
+
+
+# Create buttons
 powoff_img = tk.PhotoImage(file="img/power_off.png")
 powon_img = tk.PhotoImage(file="img/power_on.png")
 power_sw = tk.Button(buttons, image=powoff_img, text="POW", compound="top",
                      command=power_toggle)
 power_sw.pack(side="left")
-
 
 btn0_img = tk.PhotoImage(file="img/pbutton0_unpressed.png")
 btn0 = tk.Button(buttons, image=btn0_img)
@@ -112,7 +147,6 @@ btn3.bind("<ButtonPress>", lambda event: btn_press(3))
 btn3.bind("<ButtonRelease>", lambda event: btn_release(3))
 btn3.pack(side="right", padx=2)
 
-
 sw_row0 = tk.Frame(switches)
 sw_row1 = tk.Frame(switches)
 sw_row0.pack()
@@ -132,4 +166,5 @@ for i in reversed(range(18)):
     sw[i].config(command=partial(sw_toggle, i))
     sw[i].pack(side="left", padx=1)
 
+root.configure(menu=menubar)
 root.mainloop()
