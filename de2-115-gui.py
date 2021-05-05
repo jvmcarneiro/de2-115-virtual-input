@@ -56,9 +56,12 @@ def toggle_connect(dev_label):
     if ser.is_open:
         old_connection = ser.port
         index = device_menu.index(dev_label)
-        device_menu.entryconfigure(index, foreground="black")
+        device_menu.entryconfigure(index, foreground="black",
+                                   activeforeground="black",
+                                   font=("Helvetica", 10, "normal"))
         display.configure(text="No connection", fg="black")
-        # TODO: send reset signal and close
+        # TODO: send reset signal
+        ser.close()
 
         # Return if disconnected from last connection
         if old_connection == dev_label.split()[0]:
@@ -68,16 +71,17 @@ def toggle_connect(dev_label):
     ser.port = dev_label.split()[0]
     ser.open()
     if ser.is_open:
-        encoding = "utf-8"
         connection = "Connecting to " + dev_label + "..."
         display.configure(text=connection, fg="black")
-        serial_bytes = ser.read_until(serial_read, 100)
-        serial_string = serial_bytes.decode(encoding)
+        serial_bytes = ser.read(100)
+        serial_string = serial_bytes.decode("ascii", "ignore")
         if serial_read in serial_string:
             connection = "Connected to " + dev_label
             display.configure(text=connection, fg="green")
             index = device_menu.index(dev_label)
-            device_menu.entryconfigure(index, foreground="green")
+            device_menu.entryconfigure(index, foreground="green",
+                                       activeforeground="green",
+                                       font=("Helvetica", 10, "bold"))
             # TODO: send reset signal
             return
     ser.close()
@@ -169,14 +173,14 @@ file_menu = tk.Menu(menubar, tearoff=0)
 device_menu = tk.Menu(file_menu, tearoff=0)
 
 menubar.add_cascade(label="File", menu=file_menu)
+menubar.add_cascade(label="Devices", menu=device_menu)
 
-file_menu.add_cascade(label="Devices", menu=device_menu)
 file_menu.add_separator()
 file_menu.add_command(label="Exit", command=root.destroy)
 
+device_menu.add_command(label="No device found", state=tk.DISABLED)
 device_menu.add_separator()
 device_menu.add_command(label="Refresh", command=refresh_devices)
-device_menu.insert_command(0, label="No device found", state=tk.DISABLED)
 
 
 # Create buttons
@@ -231,4 +235,5 @@ for i in reversed(range(18)):
 
 root.configure(menu=menubar)
 root.title("DE2-115 Virtual Input")
+refresh_devices()
 root.mainloop()
