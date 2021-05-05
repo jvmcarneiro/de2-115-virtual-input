@@ -56,7 +56,7 @@ def toggle_connect(dev_label):
     if ser.is_open:
         old_connection = ser.port
         index = device_menu.index(dev_label)
-        device_menu.entryconfigure(index, color="black")
+        device_menu.entryconfigure(index, foreground="black")
         display.configure(text="No connection", fg="black")
         # TODO: send reset signal and close
 
@@ -67,17 +67,20 @@ def toggle_connect(dev_label):
     # Attempt to connect to device
     ser.port = dev_label.split()[0]
     ser.open()
-    if ser.is_open():
+    if ser.is_open:
+        encoding = "utf-8"
         connection = "Connecting to " + dev_label + "..."
         display.configure(text=connection, fg="black")
-        serial_stream = ser.read_until(serial_read, 100)
-        if serial_read in serial_stream:
+        serial_bytes = ser.read_until(serial_read, 100)
+        serial_string = serial_bytes.decode(encoding)
+        if serial_read in serial_string:
             connection = "Connected to " + dev_label
             display.configure(text=connection, fg="green")
             index = device_menu.index(dev_label)
-            device_menu.entryconfigure(index, color="green")
+            device_menu.entryconfigure(index, foreground="green")
             # TODO: send reset signal
             return
+    ser.close()
     connection = "Couldn't connect to " + dev_label
     display.configure(text=connection, fg="black")
 
