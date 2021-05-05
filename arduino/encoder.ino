@@ -13,6 +13,7 @@ void setup()
 void loop() 
 {
   while(!Serial.available());
+  Serial.write("hi_de2\n");
   received = Serial.read();
   if (received >= 0 && received < 16) {
     for (int i = 0; i++; i<4) {
