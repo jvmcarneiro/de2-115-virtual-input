@@ -10,16 +10,15 @@ module decoder (number, control, button3, button2, button1, button0, switch17, s
 	switch11, switch10, switch9, switch8, switch7, switch6, switch5, switch4, 
 	switch3, switch2, switch1, switch0;
 
-
 	always @(control)
 	begin
 		if (control)
 		begin
 			case(number)
-				5'b00000:	button3 <= 1;
-				5'b00001: 	button2 <= 1;
-				5'b00010: 	button1 <= 1;
-				5'b00011:	button0 <= 1;
+				5'b00000:	button3 <= ~button3;
+				5'b00001: button2 <= ~button2;
+				5'b00010: button1 <= ~button1;
+				5'b00011:	button0 <= ~button0;
 				5'b00100:	switch17 <= ~switch17;
 				5'b00101:	switch16 <= ~switch16;
 				5'b00110:	switch15 <= ~switch15;
@@ -47,8 +46,13 @@ module decoder (number, control, button3, button2, button1, button0, switch17, s
 				5'b11100,
 				5'b11101,
 				5'b11110,
-				5'b11111:
+				5'b11111,
+				default:
 				begin
+					button3 <= 1;
+					button2 <= 1;
+					button1 <= 1;
+					button0 <= 1;
 					switch17 <= 0;
 					switch16 <= 0;
 					switch15 <= 0;
@@ -71,12 +75,27 @@ module decoder (number, control, button3, button2, button1, button0, switch17, s
 			endcase
 		end
 		else
-		begin
-		button3 <= 0;
-		button2 <= 0;
-		button1 <= 0;
-		button0 <= 0;
-		end
+			button3 <= button3;
+			button2 <= button2;
+			button1 <= button1;
+			button0 <= button0;
+			switch17 <= switch17;
+			switch16 <= switch16;
+			switch15 <= switch15;
+			switch14 <= switch14;
+			switch13 <= switch13;
+			switch12 <= switch12;
+			switch11 <= switch11;
+			switch10 <= switch10;
+			switch9 <= switch9;
+			switch8 <= switch8;
+			switch7 <= switch7;
+			switch6 <= switch6;
+			switch5 <= switch5;
+			switch4 <= switch4;
+			switch3 <= switch3;
+			switch2 <= switch2;
+			switch1 <= switch1;
+			switch0 <= switch0;
 	end
-	
 endmodule
