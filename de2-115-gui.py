@@ -50,7 +50,9 @@ def refresh_devices():
 
 def toggle_connect(dev_label):
     """Attempt to connect to (or disconnect from) device in sub-menu."""
-    serial_read = "hi_de2"
+    serial_read = "is_de2?"
+    serial_ok = "ok_de2"
+    serial_write = "hi_ino\n"
 
     # Close existing connection
     if ser.is_open:
@@ -73,17 +75,18 @@ def toggle_connect(dev_label):
     if ser.is_open:
         connection = "Connecting to " + dev_label + "..."
         display.configure(text=connection, fg="black")
-        serial_bytes = ser.read(100)
-        serial_string = serial_bytes.decode("ascii", "ignore")
+        serial_string = ser.read(100).decode("ascii", "ignore")
         if serial_read in serial_string:
-            connection = "Connected to " + dev_label
-            display.configure(text=connection, fg="green")
-            index = device_menu.index(dev_label)
-            device_menu.entryconfigure(index, foreground="green",
-                                       activeforeground="green",
-                                       font=("Helvetica", 10, "bold"))
-            # TODO: send reset signal
-            return
+            ser.write(serial_write.encode())
+            serial_string = ser.read(100).decode("ascii", "ignore")
+            if serial_ok in serial_string:
+                connection = "Connected to " + dev_label
+                display.configure(text=connection, fg="green")
+                index = device_menu.index(dev_label)
+                device_menu.entryconfigure(index, foreground="green",
+                                               activeforeground="green",
+                                               font=("Helvetica", 10, "bold"))
+                return
     ser.close()
     connection = "Couldn't connect to " + dev_label
     display.configure(text=connection, fg="black")
