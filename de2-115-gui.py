@@ -50,9 +50,9 @@ def refresh_devices():
 
 def toggle_connect(dev_label):
     """Attempt to connect to (or disconnect from) device in sub-menu."""
-    serial_read = "is_de2?"
-    serial_ok = "ok_de2"
-    serial_write = "hi_ino\n"
+    serial_read = 40   # Beacon from arduino
+    serial_write = 41  # Say hi to arduino
+    serial_ok = 42     # Ok from arduino
 
     # Close existing connection
     if ser.is_open:
@@ -75,17 +75,17 @@ def toggle_connect(dev_label):
     if ser.is_open:
         connection = "Connecting to " + dev_label + "..."
         display.configure(text=connection, fg="black")
-        serial_string = ser.read(100).decode("ascii", "ignore")
-        if serial_read in serial_string:
-            ser.write(serial_write.encode())
-            serial_string = ser.read(100).decode("ascii", "ignore")
-            if serial_ok in serial_string:
+        serial_received = ser.read(10)
+        if serial_read in serial_received:
+            ser.write(serial_write)
+            serial_received = ser.read(10)
+            if serial_ok in serial_received:
                 connection = "Connected to " + dev_label
                 display.configure(text=connection, fg="green")
                 index = device_menu.index(dev_label)
                 device_menu.entryconfigure(index, foreground="green",
-                                               activeforeground="green",
-                                               font=("Helvetica", 10, "bold"))
+                                           activeforeground="green",
+                                           font=("Helvetica", 10, "bold"))
                 return
     ser.close()
     connection = "Couldn't connect to " + dev_label

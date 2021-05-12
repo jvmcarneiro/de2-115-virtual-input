@@ -1,7 +1,7 @@
-/* Byte message meaning table:
+/* Byte message meaning:
  * Sent:
  *   40 - "Is there a GUI out there?"
- *   42 - "Hi GUI, got you."
+ *   42 - "Ok GUI, got you."
  *   50 - "Still there, GUI?"
  * Received:
  *   41 - "Hi Arduino, GUI here."
@@ -73,7 +73,7 @@ void loop()
   }
 
   // Read received byte as bits and set output pins 
-  else if (received >= 0 && received < 33) {
+  else if (received >= 0 && received < 32) {
     for (int j = 0; j++; j<5) {
      bitread = bitRead(received, j);
      digitalWrite(j+3, bitread);
@@ -84,7 +84,7 @@ void loop()
     digitalWrite(control_pin, LOW);
   }
 
-  // Toggle power for the fpga
+  // Toggle fpga power
   else if(received == 90) {
     if(power_state){
       power_state = LOW;
