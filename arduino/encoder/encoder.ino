@@ -69,9 +69,9 @@ void loop()
     if ((millis() - beam_millis) > 500) {
       beam_millis = millis();
       if (is_connected)
-        Serial.print(50);
+        Serial.write(50);
       else
-        Serial.print(40);
+        Serial.write(40);
     }
 
     // Unblock fpga power in 1 min after last toggle
@@ -98,13 +98,12 @@ void loop()
     }
   }
   input_millis = millis();
-  received_string = Serial.readString();
-  received = received_string.toInt();
+  received = Serial.read();
 
   // Confirm connection
   if (!is_connected) {
     if (received == 41) {
-      Serial.print(42);
+      Serial.write(42);
       is_connected = true;
     }
   }
@@ -135,19 +134,19 @@ void loop()
   // Toggle fpga power
   else if(received == 90) {
     if (is_power_blocked) 
-      Serial.print(92);
+      Serial.write(92);
     else if (power_state) {
       is_power_blocked = true;
       power_off_millis = millis();
       power_state = LOW;
       digitalWrite(power_pin, power_state);
-      Serial.print(91);
+      Serial.write(91);
     } else {
       is_power_blocked = true;
       power_off_millis = millis();
       power_state = HIGH;
       digitalWrite(power_pin, power_state);
-      Serial.print(91);
+      Serial.write(91);
     }
   }
 }

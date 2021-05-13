@@ -76,12 +76,11 @@ def toggle_connect(dev_label):
     if ser.is_open:
         connection = "Connecting to " + dev_label + "..."
         display.configure(text=connection, fg="black")
-        serial_received = ser.read(10).decode("utf8","ignore")
-        if str(serial_read) in serial_received:
-            ser.write(str(serial_write).encode())
-            s = ser.read(10).decode("utf8","ignore")
-            serial_received = [s[i:i+2] for i in range(0, len(s), 2)]
-            if str(serial_ok) in serial_received:
+        serial_received = ser.read(5).decode("ascii","ignore")
+        if chr(serial_read) in serial_received:
+            ser.write(chr(serial_write).encode())
+            serial_received = ser.read(1).decode("ascii","ignore")
+            if chr(serial_ok) in serial_received:
                 connection = "Connected to " + dev_label
                 display.configure(text=connection, fg="green")
                 index = device_menu.index(dev_label)
