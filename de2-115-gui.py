@@ -4,12 +4,14 @@ Click the buttons to send corresponding input to the FPGA kit.
 
 import tkinter as tk
 from functools import partial
+import signal
 import serial                   # type: ignore
 import serial.tools.list_ports  # type: ignore
 
 
 def refresh_devices():
     """Refresh list of available serial devices."""
+    display.configure(text="No connection", fg="black")
     ports = list(serial.tools.list_ports.comports())
     last_index = device_menu.index(tk.END) - 1
     dev_to_pop = []
@@ -50,9 +52,9 @@ def refresh_devices():
 
 def toggle_connect(dev_label):
     """Attempt to connect to (or disconnect from) device in sub-menu."""
-    serial_read = 40   # Beacon from arduino
-    serial_write = 41  # Say hi to arduino
-    serial_ok = 42     # Ok from arduino
+    serial_read = 40   # Beacon from device
+    serial_write = 41  # Say hi to device
+    serial_ok = 42     # Ok from device
     serial_close = 88  # End connection
 
     # Close existing connection
@@ -72,8 +74,8 @@ def toggle_connect(dev_label):
 
     # Attempt to connect to device
     ser.port = dev_label.split()[0]
-    ser.open()
-    if ser.is_open:
+    try:
+        ser.open()
         connection = "Connecting to " + dev_label + "..."
         display.configure(text=connection, fg="black")
         serial_received = ser.read(5).decode("ascii","ignore")
@@ -88,9 +90,26 @@ def toggle_connect(dev_label):
                                            activeforeground="green",
                                            font=("Helvetica", 10, "bold"))
                 return
-    ser.close()
-    connection = "Couldn't connect to " + dev_label
-    display.configure(text=connection, fg="red")
+    except:
+        ser.close()
+        connection = "Couldn't connect to " + dev_label
+        display.configure(text=connection, fg="red")
+
+
+def on_closing():
+    """Close connections on program termination."""
+    serial_close = 88  # End connection
+
+    if ser.is_open:
+        if tk.messagebox.askokcancel("Confirmation", "Exiting will close all connections and turn the FPGA off. Do you still want to quit?"):
+            display.configure(text="No connection", fg="black")
+            ser.write(chr(serial_close).encode())
+            ser.close()
+            root.destroy()
+        else:
+            return
+    else:
+        root.destroy()
 
 
 def enable_power():
@@ -118,7 +137,7 @@ def power_toggle():
 def btn_press(num):
     """Enable current button signal on press."""
     serial_write = 3 - num  # Button trigger message
-    serial_ok = 42          # Ok from arduino
+    serial_ok = 42          # Ok from device
 
     ser.reset_input_buffer()
     ser.write(chr(serial_write).encode())
@@ -134,7 +153,7 @@ def btn_press(num):
 def btn_release(num):
     """Disable current button signal on release."""
     serial_write = 3 - num  # Button trigger message
-    serial_ok = 42          # Ok from arduino
+    serial_ok = 42          # Ok from device
 
     ser.reset_input_buffer()
     ser.write(chr(serial_write).encode())
@@ -150,7 +169,7 @@ def btn_release(num):
 def sw_toggle(num):
     """Update current switch state and send input to board."""
     serial_write = 21 - num  # Switch trigger message
-    serial_ok = 42          # Ok from arduino
+    serial_ok = 42           # Ok from device
 
     ser.reset_input_buffer()
     ser.write(chr(serial_write).encode())
@@ -210,7 +229,7 @@ menubar.add_cascade(label="File", menu=file_menu)
 menubar.add_cascade(label="Devices", menu=device_menu)
 
 file_menu.add_separator()
-file_menu.add_command(label="Exit", command=root.destroy)
+file_menu.add_command(label="Exit", command=on_closing)
 
 device_menu.add_command(label="No device found", state=tk.DISABLED)
 device_menu.add_separator()
@@ -270,4 +289,8 @@ for i in reversed(range(18)):
 root.configure(menu=menubar)
 root.title("DE2-115 Virtual Input")
 refresh_devices()
+
+signal.signal(signal.SIGINT, on_closing)
+signal.signal(signal.SIGTERM, on_closing)
+root.protocol("WM_DELETE_WINDOW", on_closing)
 root.mainloop()
