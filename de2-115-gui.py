@@ -63,7 +63,7 @@ def toggle_connect(dev_label):
                                    activeforeground="black",
                                    font=("Helvetica", 10, "normal"))
         display.configure(text="No connection", fg="black")
-        ser.write(str(serial_close).encode())
+        ser.write(chr(serial_close).encode())
         ser.close()
 
         # Return if disconnected from last connection
@@ -90,7 +90,7 @@ def toggle_connect(dev_label):
                 return
     ser.close()
     connection = "Couldn't connect to " + dev_label
-    display.configure(text=connection, fg="black")
+    display.configure(text=connection, fg="red")
 
 
 def enable_power():
@@ -117,29 +117,59 @@ def power_toggle():
 
 def btn_press(num):
     """Enable current button signal on press."""
-    print("KEY["+str(num)+"] pressed")
-    # TODO: send button 3 press signal
+    serial_write = 3 - num  # Button trigger message
+    serial_ok = 42          # Ok from arduino
+
+    ser.reset_input_buffer()
+    ser.write(chr(serial_write).encode())
+    serial_received = ser.read(1).decode("ascii","ignore")
+    if chr(serial_ok) in serial_received:
+        connection = "KEY["+str(num)+"] pressed"
+        display.configure(text=connection, fg="black")
+    else:
+        connection = "Input not acknowledged (try reconnecting)"
+        display.configure(text=connection, fg="red")
 
 
 def btn_release(num):
     """Disable current button signal on release."""
-    print("KEY["+str(num)+"] released")
-    # TODO: send button 3 press signal
+    serial_write = 3 - num  # Button trigger message
+    serial_ok = 42          # Ok from arduino
+
+    ser.reset_input_buffer()
+    ser.write(chr(serial_write).encode())
+    serial_received = ser.read(1).decode("ascii","ignore")
+    if chr(serial_ok) in serial_received:
+        connection = "KEY["+str(num)+"] released"
+        display.configure(text=connection, fg="black")
+    else:
+        connection = "Input not acknowledged (try reconnecting)"
+        display.configure(text=connection, fg="red")
 
 
 def sw_toggle(num):
     """Update current switch state and send input to board."""
+    serial_write = 21 - num  # Switch trigger message
+    serial_ok = 42          # Ok from arduino
+
+    ser.reset_input_buffer()
+    ser.write(chr(serial_write).encode())
+    serial_received = ser.read(1).decode("ascii","ignore")
     curr_relief = sw[num]["relief"]
-    if curr_relief == "raised":
-        sw[num].configure(image=swon_img)
-        sw[num].configure(relief="sunken")
-        print("SW["+str(num)+"] turned ON")
-        # TODO: send switch on signal
+    if chr(serial_ok) in serial_received:
+        if curr_relief == "raised":
+            sw[num].configure(image=swon_img)
+            sw[num].configure(relief="sunken")
+            connection = "SW["+str(num)+"] turned ON"
+            display.configure(text=connection, fg="black")
+        else:
+            sw[num].configure(image=swoff_img)
+            sw[num].configure(relief="raised")
+            connection = "SW["+str(num)+"] turned OFF"
+            display.configure(text=connection, fg="black")
     else:
-        sw[num].configure(image=swoff_img)
-        sw[num].configure(relief="raised")
-        print("SW["+str(num)+"] turned OFF")
-        # TODO: send switch off signal
+        connection = "Input not acknowledged (try reconnecting)"
+        display.configure(text=connection, fg="red")
 
 
 # Variables
