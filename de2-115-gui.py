@@ -3,6 +3,7 @@ Click the buttons to send corresponding input to the FPGA kit.
 """
 
 import tkinter as tk
+from tkinter import messagebox
 from functools import partial
 import signal
 import serial                   # type: ignore
@@ -81,7 +82,7 @@ def toggle_connect(dev_label):
         serial_received = ser.read(5).decode("ascii","ignore")
         if chr(serial_read) in serial_received:
             ser.write(chr(serial_write).encode())
-            serial_received = ser.read(1).decode("ascii","ignore")
+            serial_received = ser.read(2).decode("ascii","ignore")
             if chr(serial_ok) in serial_received:
                 connection = "Connected to " + dev_label
                 display.configure(text=connection, fg="green")
@@ -96,12 +97,12 @@ def toggle_connect(dev_label):
         display.configure(text=connection, fg="red")
 
 
-def on_closing():
+def on_closing(*args):
     """Close connections on program termination."""
     serial_close = 88  # End connection
 
     if ser.is_open:
-        if tk.messagebox.askokcancel("Confirmation", "Exiting will close all connections and turn the FPGA off. Do you still want to quit?"):
+        if messagebox.askokcancel("Confirmation", "Exiting will close all connections and turn the FPGA off. Do you still want to quit?"):
             display.configure(text="No connection", fg="black")
             ser.write(chr(serial_close).encode())
             ser.close()
@@ -141,7 +142,7 @@ def btn_press(num):
 
     ser.reset_input_buffer()
     ser.write(chr(serial_write).encode())
-    serial_received = ser.read(1).decode("ascii","ignore")
+    serial_received = ser.read(2).decode("ascii","ignore")
     if chr(serial_ok) in serial_received:
         connection = "KEY["+str(num)+"] pressed"
         display.configure(text=connection, fg="black")
@@ -157,7 +158,7 @@ def btn_release(num):
 
     ser.reset_input_buffer()
     ser.write(chr(serial_write).encode())
-    serial_received = ser.read(1).decode("ascii","ignore")
+    serial_received = ser.read(2).decode("ascii","ignore")
     if chr(serial_ok) in serial_received:
         connection = "KEY["+str(num)+"] released"
         display.configure(text=connection, fg="black")
@@ -173,7 +174,7 @@ def sw_toggle(num):
 
     ser.reset_input_buffer()
     ser.write(chr(serial_write).encode())
-    serial_received = ser.read(1).decode("ascii","ignore")
+    serial_received = ser.read(2).decode("ascii","ignore")
     curr_relief = sw[num]["relief"]
     if chr(serial_ok) in serial_received:
         if curr_relief == "raised":
