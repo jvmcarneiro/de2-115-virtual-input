@@ -53,6 +53,7 @@ def toggle_connect(dev_label):
     serial_read = 40   # Beacon from arduino
     serial_write = 41  # Say hi to arduino
     serial_ok = 42     # Ok from arduino
+    serial_close = 88  # End connection
 
     # Close existing connection
     if ser.is_open:
@@ -62,7 +63,7 @@ def toggle_connect(dev_label):
                                    activeforeground="black",
                                    font=("Helvetica", 10, "normal"))
         display.configure(text="No connection", fg="black")
-        # TODO: send reset signal
+        ser.write(str(serial_close).encode())
         ser.close()
 
         # Return if disconnected from last connection
@@ -75,11 +76,12 @@ def toggle_connect(dev_label):
     if ser.is_open:
         connection = "Connecting to " + dev_label + "..."
         display.configure(text=connection, fg="black")
-        serial_received = ser.read(10)
-        if serial_read in serial_received:
-            ser.write(serial_write)
-            serial_received = ser.read(10)
-            if serial_ok in serial_received:
+        serial_received = ser.read(10).decode("utf8","ignore")
+        if str(serial_read) in serial_received:
+            ser.write(str(serial_write).encode())
+            s = ser.read(10).decode("utf8","ignore")
+            serial_received = [s[i:i+2] for i in range(0, len(s), 2)]
+            if str(serial_ok) in serial_received:
                 connection = "Connected to " + dev_label
                 display.configure(text=connection, fg="green")
                 index = device_menu.index(dev_label)

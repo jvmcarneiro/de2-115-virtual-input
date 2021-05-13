@@ -1,10 +1,13 @@
-/* Byte message meaning:
- * Sent:
+/** Message meaning table **
+ * Write:
  *   40 - "Is there a GUI out there?"
  *   42 - "Ok GUI, got you."
- *   50 - "Still there, GUI?"
- * Received:
+ *   50 - "I'm already paired."
+ *   91 - "Power toggle succeeded."
+ *   92 - "Power toggle failed."
+ * Read:
  *   41 - "Hi Arduino, GUI here."
+ *   88 - "End connection."
  *   90 - "Power the board on and off."
  *   00 - "Button 3 changed state."
  *   01 - "Button 2 changed state."
@@ -28,18 +31,22 @@
  *   19 - "Switch 2 changed state."
  *   20 - "Switch 1 changed state."
  *   21 - "Switch 0 changed state."
- */
+ **/
 
 byte power_pin = 2;
 byte control_pin = 8;
 int power_state = LOW;
 
-byte received;
+String received_string;
+int received;
 byte bitread;
-bool is_connected;
+bool is_connected = false;
+bool is_power_blocked = false;
 
-unsigned long start_millis;
-unsigned long current_millis;
+unsigned long beam_millis = millis(); // timestamp for last beam sent
+unsigned long input_millis;           // ts for last input received
+unsigned long power_on_millis;        // ts for how long the board is on
+unsigned long power_off_millis;       // ts for last power toggle
 
 void setup() 
 {
@@ -53,22 +60,63 @@ void setup()
   pinMode(8, OUTPUT);
   digitalWrite(control_pin, LOW);
   digitalWrite(power_pin, LOW);
-  is_connected = false;
 }
 
 void loop() 
 {
-  // Send beacon via serial and wait for answer
   while(!Serial.available()) {
-    Serial.print(40);
+    // Send beacon every 1 s
+    if ((millis() - beam_millis) > 500) {
+      beam_millis = millis();
+      if (is_connected)
+        Serial.print(50);
+      else
+        Serial.print(40);
+    }
+
+    // Unblock fpga power in 1 min after last toggle
+    if (is_power_blocked && (millis() - power_off_millis) > 60000)
+      is_power_blocked = false;
+
+    // Disconnect and turn off fpga if user is idle for 5 min
+    if (is_connected && (millis() - input_millis) > 300000) {
+      is_connected = false;
+      if (power_state) {
+        is_power_blocked = true;
+        power_state = LOW;
+        digitalWrite(power_pin, power_state);
+        power_off_millis = millis();
+      }
+    }
+
+    // Turn fpga off after 10 min of use 
+    if (power_state && (millis() - power_on_millis) > 600000) {
+      is_power_blocked = true;
+      power_state = LOW;
+      digitalWrite(power_pin, power_state);
+      power_off_millis = millis();
+    }
   }
-  received = Serial.read();
+  input_millis = millis();
+  received_string = Serial.readString();
+  received = received_string.toInt();
 
   // Confirm connection
   if (!is_connected) {
     if (received == 41) {
       Serial.print(42);
       is_connected = true;
+    }
+  }
+
+  // Disconnect and power off fpga
+  else if (received == 88) {
+    is_connected = false;
+    if (power_state) {
+      is_power_blocked = true;
+      power_state = LOW;
+      digitalWrite(power_pin, power_state);
+      power_off_millis = millis();
     }
   }
 
@@ -86,11 +134,20 @@ void loop()
 
   // Toggle fpga power
   else if(received == 90) {
-    if(power_state){
+    if (is_power_blocked) 
+      Serial.print(92);
+    else if (power_state) {
+      is_power_blocked = true;
+      power_off_millis = millis();
       power_state = LOW;
-    }else {
+      digitalWrite(power_pin, power_state);
+      Serial.print(91);
+    } else {
+      is_power_blocked = true;
+      power_off_millis = millis();
       power_state = HIGH;
+      digitalWrite(power_pin, power_state);
+      Serial.print(91);
     }
-    digitalWrite(power_pin, power_state);
   }
 }
