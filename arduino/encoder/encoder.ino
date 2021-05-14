@@ -1,4 +1,4 @@
-/** Message meaning table **
+/** Message translation table **
  * Write:
  *   40 - "Is there a GUI out there?"
  *   42 - "Ok GUI, got you."
@@ -66,7 +66,7 @@ void loop()
 {
   while(!Serial.available()) {
     // Send beacon every 1 s
-    if ((millis() - beam_millis) > 500) {
+    if ((millis() - beam_millis) > 300) {
       beam_millis = millis();
       if (is_connected)
         Serial.write(50);

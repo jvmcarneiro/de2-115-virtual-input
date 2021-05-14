@@ -90,8 +90,13 @@ def toggle_connect(dev_label):
                 device_menu.entryconfigure(index, foreground="green",
                                            activeforeground="green",
                                            font=("Helvetica", 10, "bold"))
-                return
-    except:
+                return 1
+            else:
+                raise Exception("Did not receive acknowledgement from device.")
+        else:
+            raise Exception("Device doesn't seem available.")
+    except Exception as error:
+        print(error)
         ser.close()
         connection = "Couldn't connect to " + dev_label
         display.configure(text=connection, fg="red")
@@ -142,7 +147,7 @@ def power_toggle():
         power_sw.configure(state="disabled")
         root_entry.after(60000, enable_power)
     elif chr(serial_fail) in serial_received:
-        connection = "POW not available right now (1 min cool down)"
+        connection = "POW not available right now (board cools down for 1 minute)"
         display.configure(text=connection, fg="red")
     else:
         connection = "Input not acknowledged (try reconnecting)"
@@ -207,9 +212,7 @@ def sw_toggle(num):
 
 
 # Initial config
-ser = serial.Serial(timeout=3)
-message_font = tk.font.Font(name="TkCaptionFont", exists=True)
-message_font.config(family="Helvetica", size=10, weight="bold")
+ser = serial.Serial(timeout=1)
 
 
 # Set up grid with resizeable margins and maintain buttons' position
