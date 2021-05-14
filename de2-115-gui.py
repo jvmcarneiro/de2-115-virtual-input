@@ -68,6 +68,9 @@ def toggle_connect(dev_label):
         display.configure(text="No connection", fg="black")
         ser.write(chr(serial_close).encode())
         ser.close()
+        if power_sw.cget("relief") == "sunken":
+            power_toggle()
+        power_sw.configure(state="disabled")
 
         # Return if disconnected from last connection
         if old_connection == dev_label.split()[0]:
@@ -90,6 +93,7 @@ def toggle_connect(dev_label):
                 device_menu.entryconfigure(index, foreground="green",
                                            activeforeground="green",
                                            font=("Helvetica", 10, "bold"))
+                power_sw.configure(state="normal")
                 return 1
             else:
                 raise Exception("Did not receive acknowledgement from device.")
@@ -100,6 +104,9 @@ def toggle_connect(dev_label):
         ser.close()
         connection = "Couldn't connect to " + dev_label
         display.configure(text=connection, fg="red")
+        if power_sw.cget("relief") == "sunken":
+            power_toggle()
+        power_sw.configure(state="disabled")
 
 
 def on_closing(*args):
@@ -131,7 +138,7 @@ def power_toggle():
 
     ser.reset_input_buffer()
     ser.write(chr(serial_write).encode())
-    serial_received = ser.read(2).decode("ascii","ignore")
+    serial_received = ser.read(5).decode("ascii","ignore")
     if chr(serial_ok) in serial_received:
         curr_relief = power_sw.cget("relief")
         if curr_relief == "raised":
@@ -139,11 +146,25 @@ def power_toggle():
             power_sw.configure(relief="sunken")
             connection = "POW turned ON"
             display.configure(text=connection, fg="black")
+            btn0.configure(state="normal")
+            btn1.configure(state="normal")
+            btn2.configure(state="normal")
+            btn3.configure(state="normal")
+            for i in range(18):
+                sw[i].configure(state="normal")
         else:
             power_sw.configure(image=powoff_img)
             power_sw.configure(relief="raised")
             connection = "POW turned OFF"
             display.configure(text=connection, fg="black")
+            btn0.configure(state="disabled")
+            btn1.configure(state="disabled")
+            btn2.configure(state="disabled")
+            btn3.configure(state="disabled")
+            for i in range(18):
+                sw[i].configure(image=swoff_img)
+                sw[i].configure(relief="raised")
+                sw[i].configure(state="disabled")
         power_sw.configure(state="disabled")
         root_entry.after(60000, enable_power)
     elif chr(serial_fail) in serial_received:
@@ -157,62 +178,44 @@ def power_toggle():
 def btn_press(num):
     """Enable current button signal on press."""
     serial_write = 3 - num  # Button trigger message
-    serial_ok = 42          # Ok from device
 
     ser.reset_input_buffer()
     ser.write(chr(serial_write).encode())
-    serial_received = ser.read(2).decode("ascii","ignore")
-    if chr(serial_ok) in serial_received:
-        connection = "KEY["+str(num)+"] pressed"
-        display.configure(text=connection, fg="black")
-    else:
-        connection = "Input not acknowledged (try reconnecting)"
-        display.configure(text=connection, fg="red")
+    connection = "KEY["+str(num)+"] pressed"
+    display.configure(text=connection, fg="black")
 
 
 def btn_release(num):
     """Disable current button signal on release."""
     serial_write = 3 - num  # Button trigger message
-    serial_ok = 42          # Ok from device
 
     ser.reset_input_buffer()
     ser.write(chr(serial_write).encode())
-    serial_received = ser.read(2).decode("ascii","ignore")
-    if chr(serial_ok) in serial_received:
-        connection = "KEY["+str(num)+"] released"
-        display.configure(text=connection, fg="black")
-    else:
-        connection = "Input not acknowledged (try reconnecting)"
-        display.configure(text=connection, fg="red")
+    connection = "KEY["+str(num)+"] released"
+    display.configure(text=connection, fg="black")
 
 
 def sw_toggle(num):
     """Update current switch state and send input to board."""
     serial_write = 21 - num  # Switch trigger message
-    serial_ok = 42           # Ok from device
 
     ser.reset_input_buffer()
     ser.write(chr(serial_write).encode())
-    serial_received = ser.read(2).decode("ascii","ignore")
     curr_relief = sw[num]["relief"]
-    if chr(serial_ok) in serial_received:
-        if curr_relief == "raised":
-            sw[num].configure(image=swon_img)
-            sw[num].configure(relief="sunken")
-            connection = "SW["+str(num)+"] turned ON"
-            display.configure(text=connection, fg="black")
-        else:
-            sw[num].configure(image=swoff_img)
-            sw[num].configure(relief="raised")
-            connection = "SW["+str(num)+"] turned OFF"
-            display.configure(text=connection, fg="black")
+    if curr_relief == "raised":
+        sw[num].configure(image=swon_img)
+        sw[num].configure(relief="sunken")
+        connection = "SW["+str(num)+"] turned ON"
+        display.configure(text=connection, fg="black")
     else:
-        connection = "Input not acknowledged (try reconnecting)"
-        display.configure(text=connection, fg="red")
+        sw[num].configure(image=swoff_img)
+        sw[num].configure(relief="raised")
+        connection = "SW["+str(num)+"] turned OFF"
+        display.configure(text=connection, fg="black")
 
 
 # Initial config
-ser = serial.Serial(timeout=1)
+ser = serial.Serial(timeout=3)
 
 
 # Set up grid with resizeable margins and maintain buttons' position
@@ -261,29 +264,29 @@ device_menu.add_command(label="Refresh", command=refresh_devices)
 powoff_img = tk.PhotoImage(file="img/power_off.png")
 powon_img = tk.PhotoImage(file="img/power_on.png")
 power_sw = tk.Button(buttons, image=powoff_img, text="POW", compound="top",
-                     command=power_toggle)
+                     state="disabled", command=power_toggle)
 power_sw.pack(side="left")
 
 btn0_img = tk.PhotoImage(file="img/pbutton0_unpressed.png")
-btn0 = tk.Button(buttons, image=btn0_img)
+btn0 = tk.Button(buttons, image=btn0_img, state="disabled")
 btn0.bind("<ButtonPress>", lambda event: btn_press(0))
 btn0.bind("<ButtonRelease>", lambda event: btn_release(0))
 btn0.pack(side="right", padx=2)
 
 btn1_img = tk.PhotoImage(file="img/pbutton1_unpressed.png")
-btn1 = tk.Button(buttons, image=btn1_img)
+btn1 = tk.Button(buttons, image=btn1_img, state="disabled")
 btn1.bind("<ButtonPress>", lambda event: btn_press(1))
 btn1.bind("<ButtonRelease>", lambda event: btn_release(1))
 btn1.pack(side="right", padx=2)
 
 btn2_img = tk.PhotoImage(file="img/pbutton2_unpressed.png")
-btn2 = tk.Button(buttons, image=btn2_img)
+btn2 = tk.Button(buttons, image=btn2_img, state="disabled")
 btn2.bind("<ButtonPress>", lambda event: btn_press(2))
 btn2.bind("<ButtonRelease>", lambda event: btn_release(2))
 btn2.pack(side="right", padx=2)
 
 btn3_img = tk.PhotoImage(file="img/pbutton3_unpressed.png")
-btn3 = tk.Button(buttons, image=btn3_img)
+btn3 = tk.Button(buttons, image=btn3_img, state="disabled")
 btn3.bind("<ButtonPress>", lambda event: btn_press(3))
 btn3.bind("<ButtonRelease>", lambda event: btn_release(3))
 btn3.pack(side="right", padx=2)
@@ -299,10 +302,10 @@ swoff_img = tk.PhotoImage(file="img/switch_off.png")
 sw = [tk.Button()] * 18
 for i in reversed(range(18)):
     if i > 8:
-        sw[i] = tk.Button(sw_row0, image=swoff_img,
+        sw[i] = tk.Button(sw_row0, image=swoff_img, state="disabled",
                           text="["+str(i).zfill(2)+"]", compound="top")
     else:
-        sw[i] = tk.Button(sw_row1, image=swoff_img,
+        sw[i] = tk.Button(sw_row1, image=swoff_img, state="disabled",
                           text="["+str(i).zfill(2)+"]", compound="top")
     sw[i].config(command=partial(sw_toggle, i))
     sw[i].pack(side="left", padx=1)

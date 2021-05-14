@@ -1,0 +1,121 @@
+{
+	"partitions" : [
+		{
+			"name" : "Top",
+			"pins" : [
+				{
+					"name" : "button3",
+					"strict" : false
+				},
+				{
+					"name" : "button2",
+					"strict" : false
+				},
+				{
+					"name" : "button1",
+					"strict" : false
+				},
+				{
+					"name" : "button0",
+					"strict" : false
+				},
+				{
+					"name" : "switch17",
+					"strict" : false
+				},
+				{
+					"name" : "switch16",
+					"strict" : false
+				},
+				{
+					"name" : "switch15",
+					"strict" : false
+				},
+				{
+					"name" : "switch14",
+					"strict" : false
+				},
+				{
+					"name" : "switch13",
+					"strict" : false
+				},
+				{
+					"name" : "switch12",
+					"strict" : false
+				},
+				{
+					"name" : "switch11",
+					"strict" : false
+				},
+				{
+					"name" : "switch10",
+					"strict" : false
+				},
+				{
+					"name" : "switch9",
+					"strict" : false
+				},
+				{
+					"name" : "switch8",
+					"strict" : false
+				},
+				{
+					"name" : "switch7",
+					"strict" : false
+				},
+				{
+					"name" : "switch6",
+					"strict" : false
+				},
+				{
+					"name" : "switch5",
+					"strict" : false
+				},
+				{
+					"name" : "switch4",
+					"strict" : false
+				},
+				{
+					"name" : "switch3",
+					"strict" : false
+				},
+				{
+					"name" : "switch2",
+					"strict" : false
+				},
+				{
+					"name" : "switch1",
+					"strict" : false
+				},
+				{
+					"name" : "switch0",
+					"strict" : false
+				},
+				{
+					"name" : "number[4]",
+					"strict" : false
+				},
+				{
+					"name" : "number[1]",
+					"strict" : false
+				},
+				{
+					"name" : "number[2]",
+					"strict" : false
+				},
+				{
+					"name" : "number[0]",
+					"strict" : false
+				},
+				{
+					"name" : "number[3]",
+					"strict" : false
+				},
+				{
+					"name" : "control",
+					"strict" : false
+				}
+			]
+		}
+	]
+}
