@@ -119,20 +119,34 @@ def enable_power():
 
 
 def power_toggle():
-    """Powers board on and off in a 20 seconds minimum interval."""
-    curr_relief = power_sw.cget("relief")
-    if curr_relief == "raised":
-        power_sw.configure(image=powon_img)
-        power_sw.configure(relief="sunken")
-        print("POW turned ON")
-        # TODO: send switch on signal
+    """Power board on and off at a minimum interval of 1 minute."""
+    serial_write = 90  # Power trigger message
+    serial_ok = 91     # Power toggle ok
+    serial_fail = 92   # Power toggle failed
+
+    ser.reset_input_buffer()
+    ser.write(chr(serial_write).encode())
+    serial_received = ser.read(2).decode("ascii","ignore")
+    if chr(serial_ok) in serial_received:
+        curr_relief = power_sw.cget("relief")
+        if curr_relief == "raised":
+            power_sw.configure(image=powon_img)
+            power_sw.configure(relief="sunken")
+            connection = "POW turned ON"
+            display.configure(text=connection, fg="black")
+        else:
+            power_sw.configure(image=powoff_img)
+            power_sw.configure(relief="raised")
+            connection = "POW turned OFF"
+            display.configure(text=connection, fg="black")
+        power_sw.configure(state="disabled")
+        root_entry.after(60000, enable_power)
+    elif chr(serial_fail) in serial_received:
+        connection = "POW not available right now (1 min cool down)"
+        display.configure(text=connection, fg="red")
     else:
-        power_sw.configure(image=powoff_img)
-        power_sw.configure(relief="raised")
-        print("POW turned OFF")
-        # TODO: send switch off signal
-    power_sw.configure(state="disabled")
-    root_entry.after(20000, enable_power)
+        connection = "Input not acknowledged (try reconnecting)"
+        display.configure(text=connection, fg="red")
 
 
 def btn_press(num):
@@ -192,8 +206,11 @@ def sw_toggle(num):
         display.configure(text=connection, fg="red")
 
 
-# Variables
+# Initial config
 ser = serial.Serial(timeout=3)
+message_font = tk.font.Font(name="TkCaptionFont", exists=True)
+message_font.config(family="Helvetica", size=10, weight="bold")
+
 
 # Set up grid with resizeable margins and maintain buttons' position
 root = tk.Tk()
