@@ -8,7 +8,13 @@ from functools import partial
 import signal
 import serial                   # type: ignore
 import serial.tools.list_ports  # type: ignore
+from threading import Timer
 
+
+def not_idle():
+    if timer_idle.isAlive():
+        timer_idle.cancel()
+        timer_idle.start()
 
 def refresh_devices():
     """Refresh list of available serial devices."""
@@ -131,6 +137,16 @@ def enable_power():
 
 
 def power_toggle():
+    """Start timers for powering off auto"""
+    if not timer_idle.isAlive():
+        timer_idle.start()
+    else:
+        timer_idle.cancel()
+    if not timer_max_on.isAlive():
+        timer_max_on.start()
+    else:
+        timer_idle.cancel()
+
     """Power board on and off at a minimum interval of 1 minute."""
     serial_write = 90  # Power trigger message
     serial_ok = 91     # Power toggle ok
@@ -176,6 +192,8 @@ def power_toggle():
 
 
 def btn_press(num):
+    """Not idle flag"""
+    not_idle()
     """Enable current button signal on press."""
     serial_write = 3 - num  # Button trigger message
 
@@ -186,6 +204,8 @@ def btn_press(num):
 
 
 def btn_release(num):
+    """Not idle flag"""
+    not_idle()
     """Disable current button signal on release."""
     serial_write = 3 - num  # Button trigger message
 
@@ -196,6 +216,8 @@ def btn_release(num):
 
 
 def sw_toggle(num):
+    """Not idle flag"""
+    not_idle()
     """Update current switch state and send input to board."""
     serial_write = 21 - num  # Switch trigger message
 
@@ -216,6 +238,8 @@ def sw_toggle(num):
 
 # Initial config
 ser = serial.Serial(timeout=3)
+timer_idle = Timer(300, power_toggle)
+timer_max_on = Timer(600, power_toggle)
 
 
 # Set up grid with resizeable margins and maintain buttons' position
