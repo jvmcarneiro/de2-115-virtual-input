@@ -34,7 +34,7 @@
  **/
 
 byte power_pin = 2;
-byte control_pin = 8;
+byte control_pin = 3;
 int power_state = LOW;
 
 String received_string;
@@ -66,13 +66,17 @@ void loop()
 {
   while(!Serial.available()) {
     // Send beacon every 1 s
-    if ((millis() - beam_millis) > 300) {
+    if ((millis() - beam_millis) > 1000) {
       beam_millis = millis();
+      if(is_power_blocked)
+        Serial.print(" PBlock ");
       if (is_connected)
         Serial.write(50);
       else
         Serial.write(40);
     }
+
+    
 
     // Unblock fpga power in 1 min after last toggle
     if (is_power_blocked && (millis() - power_off_millis) > 60000)
@@ -113,9 +117,9 @@ void loop()
     is_connected = false;
     if (power_state) {
       is_power_blocked = true;
+      power_off_millis = millis();
       power_state = LOW;
       digitalWrite(power_pin, power_state);
-      power_off_millis = millis();
     }
   }
 
@@ -123,7 +127,7 @@ void loop()
   else if (received >= 0 && received < 32) {
     for (int j = 0; j++; j<5) {
      bitread = bitRead(received, j);
-     digitalWrite(j+3, bitread);
+     digitalWrite(j+4, bitread);
     }
     delay(0.001);
     digitalWrite(control_pin, HIGH);
