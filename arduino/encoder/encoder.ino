@@ -76,14 +76,12 @@ void loop()
         Serial.write(40);
     }
 
-    
-
     // Unblock fpga power in 1 min after last toggle
-    if (is_power_blocked && (millis() - power_off_millis) > 60000)
+    if (is_power_blocked && (millis() - power_off_millis) > 10000)
       is_power_blocked = false;
 
-    // Disconnect and turn off fpga if user is idle for 5 min
-    if (is_connected && (millis() - input_millis) > 300000) {
+    // Disconnect and turn off fpga if user is idle for 10 min
+    if (is_connected && (millis() - input_millis) > 600000) {
       is_connected = false;
       if (power_state) {
         is_power_blocked = true;
@@ -93,7 +91,7 @@ void loop()
       }
     }
 
-    // Turn fpga off after 10 min of use 
+    // Turn fpga off after 10 min of use
     if (power_state && (millis() - power_on_millis) > 600000) {
       is_power_blocked = true;
       power_state = LOW;

@@ -8,13 +8,23 @@ from functools import partial
 import signal
 import serial                   # type: ignore
 import serial.tools.list_ports  # type: ignore
+import threading
 from threading import Timer
 
 
+def ser_thread_write(ser, message):
+    ser.reset_input_buffer()
+    ser.write(chr(message).encode())
+    serial_received = ser.read(3).decode("ascii","ignore")
+    return serial_received
+
+
 def not_idle():
-    if timer_idle.isAlive():
+    """Reset idle timer."""
+    if timer_idle.is_alive():
         timer_idle.cancel()
         timer_idle.start()
+
 
 def refresh_devices():
     """Refresh list of available serial devices."""
@@ -47,7 +57,7 @@ def refresh_devices():
 
     # Add new ports to device menu
     for port in ports:
-        dev_label = port.device + " - " + port.description
+        dev_label = port.device + " - " + str(port.description)
         device_menu.insert_command(last_index - 1, label=dev_label,
                                    command=lambda: toggle_connect(dev_label))
 
@@ -66,17 +76,17 @@ def toggle_connect(dev_label):
 
     # Close existing connection
     if ser.is_open:
+        if power_sw.cget("relief") == "sunken":
+            power_toggle()
+        power_sw.configure(state="disabled")
         old_connection = ser.port
         index = device_menu.index(dev_label)
         device_menu.entryconfigure(index, foreground="black",
                                    activeforeground="black",
                                    font=("Helvetica", 10, "normal"))
         display.configure(text="No connection", fg="black")
-        ser.write(chr(serial_close).encode())
+        ser_thread_write(ser, serial_close)
         ser.close()
-        if power_sw.cget("relief") == "sunken":
-            power_toggle()
-        power_sw.configure(state="disabled")
 
         # Return if disconnected from last connection
         if old_connection == dev_label.split()[0]:
@@ -90,8 +100,7 @@ def toggle_connect(dev_label):
         display.configure(text=connection, fg="black")
         serial_received = ser.read(5).decode("ascii","ignore")
         if chr(serial_read) in serial_received:
-            ser.write(chr(serial_write).encode())
-            serial_received = ser.read(2).decode("ascii","ignore")
+            serial_received = ser_thread_write(ser, serial_write)
             if chr(serial_ok) in serial_received:
                 connection = "Connected to " + dev_label
                 display.configure(text=connection, fg="green")
@@ -122,7 +131,7 @@ def on_closing(*args):
     if ser.is_open:
         if messagebox.askokcancel("Confirmation", "Exiting will close all connections and turn the FPGA off. Do you still want to quit?"):
             display.configure(text="No connection", fg="black")
-            ser.write(chr(serial_close).encode())
+            ser_thread_write(ser, serial_close)
             ser.close()
             root.destroy()
         else:
@@ -138,11 +147,11 @@ def enable_power():
 
 def power_toggle():
     """Start timers for powering off auto"""
-    if not timer_idle.isAlive():
+    if not timer_idle.is_alive():
         timer_idle.start()
     else:
         timer_idle.cancel()
-    if not timer_max_on.isAlive():
+    if not timer_max_on.is_alive():
         timer_max_on.start()
     else:
         timer_idle.cancel()
@@ -153,8 +162,7 @@ def power_toggle():
     serial_fail = 92   # Power toggle failed
 
     ser.reset_input_buffer()
-    ser.write(chr(serial_write).encode())
-    serial_received = ser.read(5).decode("ascii","ignore")
+    serial_received = ser_thread_write(ser, serial_write)
     if chr(serial_ok) in serial_received:
         curr_relief = power_sw.cget("relief")
         if curr_relief == "raised":
@@ -182,7 +190,7 @@ def power_toggle():
                 sw[i].configure(relief="raised")
                 sw[i].configure(state="disabled")
         power_sw.configure(state="disabled")
-        root_entry.after(60000, enable_power)
+        root_entry.after(10000, enable_power)
     elif chr(serial_fail) in serial_received:
         connection = "POW not available right now (board cools down for 1 minute)"
         display.configure(text=connection, fg="red")
@@ -192,37 +200,34 @@ def power_toggle():
 
 
 def btn_press(num):
-    """Not idle flag"""
-    not_idle()
     """Enable current button signal on press."""
     serial_write = 3 - num  # Button trigger message
 
+    not_idle()
     ser.reset_input_buffer()
-    ser.write(chr(serial_write).encode())
+    ser_thread_write(ser, serial_write)
     connection = "KEY["+str(num)+"] pressed"
     display.configure(text=connection, fg="black")
 
 
 def btn_release(num):
-    """Not idle flag"""
-    not_idle()
     """Disable current button signal on release."""
     serial_write = 3 - num  # Button trigger message
 
+    not_idle()
     ser.reset_input_buffer()
-    ser.write(chr(serial_write).encode())
+    ser_thread_write(ser, serial_write)
     connection = "KEY["+str(num)+"] released"
     display.configure(text=connection, fg="black")
 
 
 def sw_toggle(num):
-    """Not idle flag"""
-    not_idle()
     """Update current switch state and send input to board."""
     serial_write = 21 - num  # Switch trigger message
 
+    not_idle()
     ser.reset_input_buffer()
-    ser.write(chr(serial_write).encode())
+    ser_thread_write(ser, serial_write)
     curr_relief = sw[num]["relief"]
     if curr_relief == "raised":
         sw[num].configure(image=swon_img)
@@ -238,7 +243,7 @@ def sw_toggle(num):
 
 # Initial config
 ser = serial.Serial(timeout=3)
-timer_idle = Timer(300, power_toggle)
+timer_idle = Timer(600, power_toggle)
 timer_max_on = Timer(600, power_toggle)
 
 
@@ -333,6 +338,9 @@ for i in reversed(range(18)):
                           text="["+str(i).zfill(2)+"]", compound="top")
     sw[i].config(command=partial(sw_toggle, i))
     sw[i].pack(side="left", padx=1)
+
+thread_write = threading.Thread(target=ser_thread_write, args=(2,))
+thread_write.start()
 
 root.configure(menu=menubar)
 root.title("DE2-115 Virtual Input")
