@@ -1,3 +1,9 @@
+# Quartus project compilation files
+db/
+incremental_db/
+output_files/
+simulation/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
