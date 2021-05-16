@@ -3,6 +3,8 @@ db/
 incremental_db/
 output_files/
 simulation/
+*.bak
+*.qws
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

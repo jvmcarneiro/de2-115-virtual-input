@@ -2,30 +2,10 @@ module decoder (number, control, button3, button2, button1, button0, switch17, s
 
 	input [4:0]number;
 	input control;
+	
+	output reg button3, button2, button1, button0;
+	output reg switch17, switch16, switch15, switch14, switch13, switch12, switch11, switch10, switch9, switch8, switch7, switch6, switch5, switch4, switch3, switch2, switch1, switch0;
 
-	output reg button3 = 1;
-	output reg button2 = 1;
-	output reg button1 = 1;
-	output reg button0 = 1;
-	output reg switch17 = 0;
-	output reg switch16 = 0;
-	output reg switch15 = 0;
-	output reg switch14 = 0;
-	output reg switch13 = 0;
-	output reg switch12 = 0;
-	output reg switch11 = 0;
-	output reg switch10 = 0;
-	output reg switch9 = 0;
-	output reg switch8 = 0;
-	output reg switch7 = 0;
-	output reg switch6 = 0;
-	output reg switch5 = 0;
-	output reg switch4 = 0;
-	output reg switch3 = 0;
-	output reg switch2 = 0;
-	output reg switch1 = 0;
-	output reg switch0 = 0;
-		
 	always @(posedge control)
 	begin
 		case(number)

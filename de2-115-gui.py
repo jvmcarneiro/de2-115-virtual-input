@@ -108,17 +108,22 @@ def ser_exchange(ser, message, *args):
                 power_sw.configure(relief="sunken")
                 connection = "POW turned ON"
                 display.configure(text=connection, fg="black")
+                reset_sw.configure(state="normal")
                 btn0.configure(state="normal")
                 btn1.configure(state="normal")
                 btn2.configure(state="normal")
                 btn3.configure(state="normal")
                 for i in range(18):
                     sw[i].configure(state="normal")
+                restart_jtagd()
             else:
                 power_sw.configure(image=powoff_img)
                 power_sw.configure(relief="raised")
                 connection = "POW turned OFF"
                 display.configure(text=connection, fg="black")
+                reset_sw.configure(image=resetoff_img)
+                reset_sw.configure(relief="raised")
+                reset_sw.configure(state="disabled")
                 btn0.configure(state="disabled")
                 btn1.configure(state="disabled")
                 btn2.configure(state="disabled")
@@ -222,6 +227,9 @@ def toggle_connect(dev_label):
         power_sw.configure(state="disabled")
         connection = "POW turned OFF"
         display.configure(text=connection, fg="black")
+        reset_sw.configure(image=resetoff_img)
+        reset_sw.configure(relief="raised")
+        reset_sw.configure(state="disabled")
         btn0.configure(state="disabled")
         btn1.configure(state="disabled")
         btn2.configure(state="disabled")
@@ -303,9 +311,13 @@ def power_toggle():
     if power_sw.cget("state") == "disabled":
         return
     if not timer_max_on.is_alive():
+        connection = "Powering on..."
+        display.configure(text=connection, fg="black")
         create_timer_max_on()
         timer_max_on.start()
     else:
+        connection = "Powering off..."
+        display.configure(text=connection, fg="black")
         timer_max_on.cancel()
     if timer_idle.is_alive():
         timer_idle.cancel()
@@ -314,6 +326,31 @@ def power_toggle():
     thread_power = threading.Thread(target=ser_exchange, args=(ser, 90), daemon=True)
     thread_power.start()
 
+def reset_toggle():
+    """Reset button trigger for the fpga board state."""
+    if reset_sw.cget("state") == "disabled":
+        return
+    serial_message = 127  # Reset trigger message
+    if timer_idle.is_alive():
+        timer_idle.cancel()
+        create_timer_idle()
+        timer_idle.start()
+    curr_relief = reset_sw["relief"]
+    if curr_relief == "raised":
+        thread_sw = threading.Thread(target=ser_exchange, args=(ser, serial_message), daemon=True)
+        thread_sw.start()
+        reset_sw.configure(image=reseton_img)
+        reset_sw.configure(relief="sunken")
+        for i in range(18):
+            sw[i].configure(image=swoff_img)
+            sw[i].configure(relief="raised")
+        connection = "RESET turned ON"
+        display.configure(text=connection, fg="black")
+    else:
+        reset_sw.configure(image=resetoff_img)
+        reset_sw.configure(relief="raised")
+        connection = "RESET turned OFF"
+        display.configure(text=connection, fg="black")
 
 def btn_press(num):
     """Enable current button signal on press."""
@@ -411,6 +448,9 @@ device_menu = tk.Menu(file_menu, tearoff=0)
 menubar.add_cascade(label="File", menu=file_menu)
 menubar.add_cascade(label="Devices", menu=device_menu)
 
+file_menu.add_command(label="Open Quartus", command=launch_quartus)
+file_menu.add_command(label="Open Camera", command=launch_camera)
+file_menu.add_command(label="Restart driver", command=restart_jtagd)
 file_menu.add_separator()
 file_menu.add_command(label="Exit", command=on_close)
 
@@ -425,6 +465,12 @@ powon_img = tk.PhotoImage(file="img/power_on.png")
 power_sw = tk.Button(buttons, image=powoff_img, text="POW", compound="top",
                      state="disabled", command=power_toggle)
 power_sw.pack(side="left")
+
+resetoff_img = tk.PhotoImage(file="img/switch_off.png")
+reseton_img = tk.PhotoImage(file="img/switch_on.png")
+reset_sw = tk.Button(buttons, image=resetoff_img, text="RESET", compound="top",
+                     state="disabled", command=reset_toggle)
+reset_sw.pack(side="left", padx=10)
 
 btn0_img = tk.PhotoImage(file="img/pbutton0_unpressed.png")
 btn0 = tk.Button(buttons, image=btn0_img, state="disabled")
