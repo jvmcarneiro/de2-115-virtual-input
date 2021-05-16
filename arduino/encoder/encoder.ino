@@ -39,10 +39,12 @@ int power_state = LOW;
 
 int received;
 byte bitread;
+bool is_sent = false;
 bool is_connected = false;
 bool is_power_blocked = false;
 
 unsigned long beam_millis = millis(); // timestamp for last beam sent
+unsigned long sent_millis;            // ts for output clock state change
 unsigned long input_millis;           // ts for last input received
 unsigned long power_on_millis;        // ts for how long the board is on
 unsigned long power_off_millis;       // ts for last power toggle
@@ -61,7 +63,7 @@ void setup()
 
   for (int j = 4; j<10; j++)
     digitalWrite(j, LOW);
-  digitalWrite(control_pin, HIGH);
+  digitalWrite(control_pin, LOW);
   digitalWrite(power_pin, LOW);
 }
 
@@ -75,6 +77,12 @@ void loop()
         Serial.write(50);
       else
         Serial.write(40);
+    }
+
+    // Change output control signal state
+    if (is_sent && (millis() - sent_millis) > 100) {
+      digitalWrite(control_pin, LOW);
+      is_sent = false;
     }
 
     // Unblock fpga power in 10 sec after last toggle
@@ -131,10 +139,9 @@ void loop()
       else
         digitalWrite(j+5, bitread);
     }
-    delay(0.001);
-    digitalWrite(control_pin, LOW);
-    delay(0.001);
     digitalWrite(control_pin, HIGH);
+    is_sent = true;
+    sent_millis = millis();
   }
 
   // Reset fpga to initial state 
@@ -145,10 +152,9 @@ void loop()
       else
         digitalWrite(j+5, HIGH);
     }
-    delay(0.001);
-    digitalWrite(control_pin, LOW);
-    delay(0.001);
     digitalWrite(control_pin, HIGH);
+    is_sent = true;
+    sent_millis = millis();
   }
 
   // Toggle fpga power
