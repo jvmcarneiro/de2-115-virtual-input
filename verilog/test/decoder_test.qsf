@@ -59,16 +59,16 @@ set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
-set_location_assignment PIN_G20 -to button0
-set_location_assignment PIN_G22 -to button1
-set_location_assignment PIN_G21 -to button2
-set_location_assignment PIN_F17 -to button3
-set_location_assignment PIN_H13 -to number[4]
-set_location_assignment PIN_J14 -to control
-set_location_assignment PIN_F14 -to number[2]
-set_location_assignment PIN_H14 -to number[3]
-set_location_assignment PIN_E10 -to number[1]
-set_location_assignment PIN_D9 -to number[0]
+set_location_assignment PIN_E21 -to button0
+set_location_assignment PIN_E22 -to button1
+set_location_assignment PIN_E25 -to button2
+set_location_assignment PIN_E24 -to button3
+set_location_assignment PIN_J10 -to number[4]
+set_location_assignment PIN_D9 -to control
+set_location_assignment PIN_H14 -to number[2]
+set_location_assignment PIN_J14 -to number[3]
+set_location_assignment PIN_F14 -to number[1]
+set_location_assignment PIN_E10 -to number[0]
 set_location_assignment PIN_G19 -to switch0
 set_location_assignment PIN_F19 -to switch1
 set_location_assignment PIN_E19 -to switch2
@@ -87,4 +87,5 @@ set_location_assignment PIN_F15 -to switch14
 set_location_assignment PIN_G15 -to switch15
 set_location_assignment PIN_G16 -to switch16
 set_location_assignment PIN_H15 -to switch17
+set_location_assignment PIN_H13 -to feedback
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
