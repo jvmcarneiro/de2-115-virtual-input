@@ -35,9 +35,9 @@
 
 byte power_pin = 2;
 byte control_pin = 3;
+byte feedback = 7;
 int power_state = LOW;
 
-String received_string;
 int received;
 byte bitread;
 bool is_connected = false;
@@ -56,20 +56,20 @@ void setup()
   pinMode(4, OUTPUT);
   pinMode(5, OUTPUT);
   pinMode(6, OUTPUT);
-  pinMode(7, OUTPUT);
+  pinMode(7, INPUT);
   pinMode(8, OUTPUT);
-  digitalWrite(control_pin, LOW);
+  pinMode(9, OUTPUT);
+
+  digitalWrite(control_pin, HIGH);
   digitalWrite(power_pin, LOW);
 }
 
 void loop() 
 {
-  while(!Serial.available()) {
-    // Send beacon every 1 s
+  while(!Serial.available()) {     
+    // Send beacon every 1 second
     if ((millis() - beam_millis) > 1000) {
       beam_millis = millis();
-      if(is_power_blocked)
-        Serial.print(" PBlock ");
       if (is_connected)
         Serial.write(50);
       else
@@ -122,15 +122,18 @@ void loop()
   }
 
   // Read received byte as bits and set output pins 
-  else if (received >= 0 && received < 32) {
-    for (int j = 0; j++; j<5) {
-     bitread = bitRead(received, j);
-     digitalWrite(j+4, bitread);
+  else if (received >= 0 && received < 22) {
+    for (int j = 0; j<5; j++) {
+      bitread = bitRead(received, j);
+      if (j < 3)
+        digitalWrite(j+4, bitread);
+      else
+        digitalWrite(j+5, bitread);
     }
     delay(0.001);
-    digitalWrite(control_pin, HIGH);
-    delay(0.001);
     digitalWrite(control_pin, LOW);
+    delay(0.001);
+    digitalWrite(control_pin, HIGH);
   }
 
   // Toggle fpga power

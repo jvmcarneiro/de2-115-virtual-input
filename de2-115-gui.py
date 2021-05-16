@@ -39,6 +39,7 @@ Write:
 import tkinter as tk
 from tkinter import messagebox
 from functools import partial
+import subprocess
 import sys
 import signal
 import serial                   # type: ignore
@@ -51,7 +52,6 @@ def ser_exchange(ser, message, *args):
     """Exchange serial information with device."""
     ser.reset_input_buffer()
     if message != 999:  # flag for just read
-        print(message)
         ser.write(chr(message).encode())
 
     if message == 999:  # look for device beacon
@@ -135,7 +135,24 @@ def ser_exchange(ser, message, *args):
         else:
             connection = "Input not acknowledged, try reconnecting"
             display.configure(text=connection, fg="red")
+
     sys.exit()
+
+
+def restart_jtagd():
+    """Restart the FPGA USB Blaster driver."""
+    subprocess.run(["killall", "jtagd"])
+    subprocess.Popen(["/opt/intelFPGA/20.1/quartus/bin/jtagd"], shell=True)
+
+
+def launch_quartus():
+    """Open a Quartus instance."""
+    subprocess.Popen(["/opt/intelFPGA/20.1/quartus/bin/quartus"])
+
+
+def launch_camera():
+    """Open a Cheese instance."""
+    subprocess.Popen(["/usr/bin/cheese"])
 
 
 def create_timer_idle():
@@ -144,11 +161,13 @@ def create_timer_idle():
     timer_idle = Timer(590, timer_timeout)
     timer_idle.daemon = True
 
+
 def create_timer_max_on():
     """Reset idle timer."""
     global timer_max_on
     timer_max_on = Timer(595, timer_timeout)
     timer_max_on.daemon = True
+
 
 def refresh_devices():
     """Refresh list of available serial devices."""
@@ -195,7 +214,7 @@ def toggle_connect(dev_label):
     """Attempt to connect to (or disconnect from) device in sub-menu."""
     # Close existing connection
     if ser.is_open:
-        if timer_max_on.is_alive()
+        if timer_max_on.is_alive():
             timer_max_on.cancel()
         timer_idle.cancel()
         power_sw.configure(image=powoff_img)
@@ -275,7 +294,8 @@ def timer_timeout():
 
 def enable_power():
     """Enable the power switch button."""
-    power_sw.configure(state="normal")
+    if ser.is_open:
+        power_sw.configure(state="normal")
 
 
 def power_toggle():
@@ -287,6 +307,10 @@ def power_toggle():
         timer_max_on.start()
     else:
         timer_max_on.cancel()
+    if timer_idle.is_alive():
+        timer_idle.cancel()
+        create_timer_idle()
+        timer_idle.start()
     thread_power = threading.Thread(target=ser_exchange, args=(ser, 90), daemon=True)
     thread_power.start()
 
