@@ -1,0 +1,50 @@
+# Copyright (C) 2020  Intel Corporation. All rights reserved.
+# Your use of Intel Corporation's design tools, logic functions 
+# and other software and tools, and any partner logic 
+# functions, and any output files from any of the foregoing 
+# (including device programming or simulation files), and any 
+# associated documentation or information are expressly subject 
+# to the terms and conditions of the Intel Program License 
+# Subscription Agreement, the Intel Quartus Prime License Agreement,
+# the Intel FPGA IP License Agreement, or other applicable license
+# agreement, including, without limitation, that your use is for
+# the sole purpose of programming logic devices manufactured by
+# Intel and sold by Intel or its authorized distributors.  Please
+# refer to the applicable agreement for further details, at
+# https://fpgasoftware.intel.com/eula.
+
+# Quartus Prime Version 20.1.1 Build 720 11/11/2020 SJ Lite Edition
+# File: /home/mark1/de2-115-virtual-input/verilog/test/decoder_test.csv
+# Generated on: Sun May 16 17:27:47 2021
+
+# Note: The column header names should not be changed if you wish to import this .csv file into the Quartus Prime software.
+
+To,Direction,Location,I/O Bank,VREF Group,Fitter Location,I/O Standard,Reserved,Current Strength,Slew Rate,Differential Pair,Strict Preservation
+button0,Output,PIN_E21,7,B7_N0,PIN_E21,2.5 V,,,,,
+button1,Output,PIN_E22,7,B7_N0,PIN_E22,2.5 V,,,,,
+button2,Output,PIN_E25,7,B7_N1,PIN_E25,2.5 V,,,,,
+button3,Output,PIN_E24,7,B7_N1,PIN_E24,2.5 V,,,,,
+control,Input,PIN_D9,8,B8_N1,PIN_D9,2.5 V,,,,,
+number[4],Input,PIN_J10,8,B8_N1,PIN_J10,2.5 V,,,,,
+number[3],Input,PIN_J14,8,B8_N0,PIN_J14,2.5 V,,,,,
+number[2],Input,PIN_H14,8,B8_N0,PIN_H14,2.5 V,,,,,
+number[1],Input,PIN_F14,8,B8_N0,PIN_F14,2.5 V,,,,,
+number[0],Input,PIN_E10,8,B8_N1,PIN_E10,2.5 V,,,,,
+switch0,Output,PIN_G19,7,B7_N2,PIN_G19,2.5 V,,,,,
+switch1,Output,PIN_F19,7,B7_N0,PIN_F19,2.5 V,,,,,
+switch2,Output,PIN_E19,7,B7_N0,PIN_E19,2.5 V,,,,,
+switch3,Output,PIN_F21,7,B7_N0,PIN_F21,2.5 V,,,,,
+switch4,Output,PIN_F18,7,B7_N1,PIN_F18,2.5 V,,,,,
+switch5,Output,PIN_E18,7,B7_N1,PIN_E18,2.5 V,,,,,
+switch6,Output,PIN_J19,7,B7_N2,PIN_J19,2.5 V,,,,,
+switch7,Output,PIN_H19,7,B7_N2,PIN_H19,2.5 V,,,,,
+switch8,Output,PIN_J17,7,B7_N2,PIN_J17,2.5 V,,,,,
+switch9,Output,PIN_G17,7,B7_N1,PIN_G17,2.5 V,,,,,
+switch10,Output,PIN_J15,7,B7_N2,PIN_J15,2.5 V,,,,,
+switch11,Output,PIN_H16,7,B7_N2,PIN_H16,2.5 V,,,,,
+switch12,Output,PIN_J16,7,B7_N2,PIN_J16,2.5 V,,,,,
+switch13,Output,PIN_H17,7,B7_N2,PIN_H17,2.5 V,,,,,
+switch14,Output,PIN_F15,7,B7_N2,PIN_F15,2.5 V,,,,,
+switch15,Output,PIN_G15,7,B7_N2,PIN_G15,2.5 V,,,,,
+switch16,Output,PIN_G16,7,B7_N2,PIN_G16,2.5 V,,,,,
+switch17,Output,PIN_H15,7,B7_N2,PIN_H15,2.5 V,,,,,

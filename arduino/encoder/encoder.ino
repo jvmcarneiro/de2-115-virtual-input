@@ -35,7 +35,6 @@
 
 byte power_pin = 2;
 byte control_pin = 3;
-byte feedback = 7;
 int power_state = LOW;
 
 int received;
@@ -56,10 +55,12 @@ void setup()
   pinMode(4, OUTPUT);
   pinMode(5, OUTPUT);
   pinMode(6, OUTPUT);
-  pinMode(7, INPUT);
+  pinMode(7, OUTPUT);
   pinMode(8, OUTPUT);
   pinMode(9, OUTPUT);
 
+  for (int j = 4; j<10; j++)
+    digitalWrite(j, LOW);
   digitalWrite(control_pin, HIGH);
   digitalWrite(power_pin, LOW);
 }
@@ -129,6 +130,20 @@ void loop()
         digitalWrite(j+4, bitread);
       else
         digitalWrite(j+5, bitread);
+    }
+    delay(0.001);
+    digitalWrite(control_pin, LOW);
+    delay(0.001);
+    digitalWrite(control_pin, HIGH);
+  }
+
+  // Reset fpga to initial state 
+  else if (received == 127) {
+    for (int j = 0; j<5; j++) {
+      if (j < 3)
+        digitalWrite(j+4, HIGH);
+      else
+        digitalWrite(j+5, HIGH);
     }
     delay(0.001);
     digitalWrite(control_pin, LOW);
