@@ -1,38 +1,49 @@
-module decoder (number, control, button3, button2, button1, button0, switch17, switch16, switch15, switch14, switch13, switch12, switch11, switch10, switch9, switch8, switch7, switch6, switch5, switch4, switch3, switch2, switch1, switch0, led_control);
+module decoder (number, control, led_control, button0, button1, button2, button3, switch17, switch16, switch15, switch14, switch13, switch12, switch11, switch10, switch9, switch8, switch7, switch6, value);
 
-	input [4:0]number;
+	input [3:0]number;
 	input control;
+	input value;
 	
 	output reg button3, button2, button1, button0;
-	output reg switch17, switch16, switch15, switch14, switch13, switch12, switch11, switch10, switch9, switch8, switch7, switch6, switch5, switch4, switch3, switch2, switch1, switch0;
+	output reg switch17, switch16, switch15, switch14, switch13, switch12, switch11, switch10, switch9, switch8, switch7, switch6;
+	
 	output led_control;
 	
-
-	always @ (negedge control)
+	always @ (posedge control)
 	begin
+		button3 <= button3;
+		button2 <= button2;
+		button1 <= button1;
+		button0 <= button0;
+		switch17 <= switch17;
+		switch16 <= switch16;
+		switch15 <= switch15;
+		switch14 <= switch14;
+		switch13 <= switch13;
+		switch12 <= switch12;
+		switch11 <= switch11;
+		switch10 <= switch10;
+		switch9 <= switch9;
+		switch8 <= switch8;
+		switch7 <= switch7;
+		switch6 <= switch6;
 		case(number)
-			5'b00000:	button3 <= !button3;
-			5'b00001:	button2 <= !button2;
-			5'b00010:	button1 <= !button1;
-			5'b00011:	button0 <= !button0;
-			5'b00100:	switch17 <= !switch17;
-			5'b00101:	switch16 <= !switch16;
-			5'b00110:	switch15 <= !switch15;
-			5'b00111:	switch14 <= !switch14;
-			5'b01000:	switch13 <= !switch13;
-			5'b01001:	switch12 <= !switch12;
-			5'b01010:	switch11 <= !switch11;
-			5'b01011:	switch10 <= !switch10;
-			5'b01100:	switch9 <= !switch9;
-			5'b01101:	switch8 <= !switch8;
-			5'b01110:	switch7 <= !switch7;
-			5'b01111:	switch6 <= !switch6;
-			5'b10000:	switch5 <= !switch5;
-			5'b10001:	switch4 <= !switch4;
-			5'b10010:	switch3 <= !switch3;
-			5'b10011:	switch2 <= !switch2;
-			5'b10100:	switch1 <= !switch1;
-			5'b10101:	switch0 <= !switch0;
+			4'b0000: button3  <= ~button3 ;
+			4'b0001: button2  <= ~button2 ;
+			4'b0010: button1  <= ~button1 ;
+			4'b0011: button0  <= ~button0 ;
+			4'b0100: switch17 <= ~switch17;
+			4'b0101: switch16 <= ~switch16;
+			4'b0110: switch15 <= ~switch15;
+			4'b0111: switch14 <= ~switch14;
+			4'b1000: switch13 <= ~switch13;
+			4'b1001: switch12 <= ~switch12;
+			4'b1010: switch11 <= ~switch11;
+			4'b1011: switch10 <= ~switch10;
+			4'b1100: switch9  <= ~switch9 ;
+			4'b1101: switch8  <= ~switch8 ;
+			4'b1110: switch7  <= ~switch7 ;
+			4'b1111: switch6  <= ~switch6 ;
 			default: begin
 				button3 <= 1'b1;
 				button2 <= 1'b1;
@@ -50,16 +61,10 @@ module decoder (number, control, button3, button2, button1, button0, switch17, s
 				switch8 <= 1'b0;
 				switch7 <= 1'b0;
 				switch6 <= 1'b0;
-				switch5 <= 1'b0;
-				switch4 <= 1'b0;
-				switch3 <= 1'b0;
-				switch2 <= 1'b0;
-				switch1 <= 1'b0;
-				switch0 <= 1'b0;
 			end
 		endcase
 	end
 	
-	assign led_control = control;
+	assign led_control = value;
 
 endmodule
