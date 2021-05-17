@@ -62,7 +62,7 @@ module decoder (number, control, led_control, button0, button1, button2, button3
 				switch7 <= 1'b0;
 				switch6 <= 1'b0;
 			end
-		endcase
+		end
 	end
 	
 	assign led_control = value;
