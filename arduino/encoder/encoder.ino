@@ -34,8 +34,10 @@
  **/
 
 byte power_pin = 2;
-byte control_pin = 3;
+byte control_pin = 9;
+byte value_pin = 3;
 int power_state = LOW;
+int values[22];
 
 int received;
 byte bitread;
@@ -61,6 +63,10 @@ void setup()
   pinMode(8, OUTPUT);
   pinMode(9, OUTPUT);
 
+  for (int i=0; i < 4; i++)
+    values[i] = 1;
+  for (int i=4; i < 22; i++)
+    values[i] = 0;
   for (int j = 4; j<10; j++)
     digitalWrite(j, LOW);
   digitalWrite(control_pin, LOW);
@@ -131,8 +137,13 @@ void loop()
   }
 
   // Read received byte as bits and set output pins 
-  else if (received >= 0 && received < 22) {
-    for (int j = 0; j<5; j++) {
+  else if (received >= 0 && received < 16) {
+    if (values[received] == 0)
+      values[received] = 1;
+    else
+      values[received] = 0;
+    digitalWrite(value_pin, values[received]);
+    for (int j = 0; j<4; j++) {
       bitread = bitRead(received, j);
       if (j < 3)
         digitalWrite(j+4, bitread);
@@ -145,13 +156,17 @@ void loop()
   }
 
   // Reset fpga to initial state 
-  else if (received == 127) {
-    for (int j = 0; j<5; j++) {
+  else if (received == 127 || received < 32) {
+    for (int j = 0; j<4; j++) {
       if (j < 3)
         digitalWrite(j+4, HIGH);
       else
         digitalWrite(j+5, HIGH);
     }
+    for (int i=0; i < 4; i++)
+      values[i] = 1;
+    for (int i=4; i < 22; i++)
+      values[i] = 0;
     digitalWrite(control_pin, HIGH);
     is_sent = true;
     sent_millis = millis();
