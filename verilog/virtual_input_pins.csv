@@ -1,0 +1,12 @@
+To,Direction,Location,I/O Bank,VREF Group,Fitter Location,I/O Standard,Reserved,Current Strength,Slew Rate,Differential Pair,Strict Preservation
+button0,Output,PIN_E21,7,B7_N0,PIN_E21,2.5 V,,,,,
+button1,Output,PIN_E22,7,B7_N0,PIN_E22,2.5 V,,,,,
+button2,Output,PIN_E25,7,B7_N1,PIN_E25,2.5 V,,,,,
+button3,Output,PIN_E24,7,B7_N1,PIN_E24,2.5 V,,,,,
+control,Input,PIN_J14,8,B8_N0,PIN_J14,2.5 V,,,,,
+number[2],Input,PIN_H14,8,B8_N0,PIN_H14,2.5 V,,,,,
+number[1],Input,PIN_F14,8,B8_N0,PIN_F14,2.5 V,,,,,
+number[0],Input,PIN_E10,8,B8_N1,PIN_E10,2.5 V,,,,,
+switch15,Output,PIN_G15,7,B7_N2,PIN_G15,2.5 V,,,,,
+switch16,Output,PIN_G16,7,B7_N2,PIN_G16,2.5 V,,,,,
+switch17,Output,PIN_H15,7,B7_N2,PIN_H15,2.5 V,,,,,

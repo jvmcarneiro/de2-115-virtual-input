@@ -33,20 +33,20 @@
  *   21 - "Switch 0 changed state."
  **/
 
+/** Currently using only 4 output data pins due to limited availability. **/
+
 byte power_pin = 2;
-byte control_pin = 9;
-byte value_pin = 3;
+byte control_pin = 8;
 int power_state = LOW;
-int values[22];
 
 int received;
 byte bitread;
-bool is_sent = false;
+//bool is_sent = false;
 bool is_connected = false;
 bool is_power_blocked = false;
 
 unsigned long beam_millis = millis(); // timestamp for last beam sent
-unsigned long sent_millis;            // ts for output clock state change
+//unsigned long sent_millis;            // ts for output clock state change
 unsigned long input_millis;           // ts for last input received
 unsigned long power_on_millis;        // ts for how long the board is on
 unsigned long power_off_millis;       // ts for last power toggle
@@ -55,22 +55,13 @@ void setup()
 {
   Serial.begin(9600);
   pinMode(2, OUTPUT);
-  pinMode(3, OUTPUT);
   pinMode(4, OUTPUT);
   pinMode(5, OUTPUT);
   pinMode(6, OUTPUT);
-  pinMode(7, OUTPUT);
   pinMode(8, OUTPUT);
-  pinMode(9, OUTPUT);
 
-  for (int i=0; i < 4; i++)
-    values[i] = 1;
-  for (int i=4; i < 22; i++)
-    values[i] = 0;
   for (int j = 4; j<10; j++)
     digitalWrite(j, LOW);
-  digitalWrite(control_pin, LOW);
-  digitalWrite(power_pin, LOW);
 }
 
 void loop() 
@@ -86,10 +77,10 @@ void loop()
     }
 
     // Change output control signal state
-    if (is_sent && (millis() - sent_millis) > 100) {
-      digitalWrite(control_pin, LOW);
-      is_sent = false;
-    }
+    //if (is_sent && (millis() - sent_millis) > 100) {
+    //  digitalWrite(control_pin, LOW);
+    //  is_sent = false;
+    //}
 
     // Unblock fpga power in 10 sec after last toggle
     if (is_power_blocked && (millis() - power_off_millis) > 10000)
@@ -137,39 +128,30 @@ void loop()
   }
 
   // Read received byte as bits and set output pins 
-  else if (received >= 0 && received < 16) {
-    if (values[received] == 0)
-      values[received] = 1;
-    else
-      values[received] = 0;
-    digitalWrite(value_pin, values[received]);
-    for (int j = 0; j<4; j++) {
+  else if (received >= 0 && received < 7) {
+    for (int j = 0; j<3; j++) {
       bitread = bitRead(received, j);
-      if (j < 3)
-        digitalWrite(j+4, bitread);
-      else
-        digitalWrite(j+5, bitread);
+      digitalWrite(j+4, bitread);
     }
+    delay(1);
     digitalWrite(control_pin, HIGH);
-    is_sent = true;
-    sent_millis = millis();
+    delay(1);
+    digitalWrite(control_pin, LOW);
+    //is_sent = true;
+    //sent_millis = millis();
   }
 
   // Reset fpga to initial state 
   else if (received == 127 || received < 32) {
-    for (int j = 0; j<4; j++) {
-      if (j < 3)
-        digitalWrite(j+4, HIGH);
-      else
-        digitalWrite(j+5, HIGH);
+    for (int j = 0; j<3; j++) {
+      digitalWrite(j+4, HIGH);
     }
-    for (int i=0; i < 4; i++)
-      values[i] = 1;
-    for (int i=4; i < 22; i++)
-      values[i] = 0;
+    delay(1);
     digitalWrite(control_pin, HIGH);
-    is_sent = true;
-    sent_millis = millis();
+    delay(1);
+    digitalWrite(control_pin, LOW);
+    //is_sent = true;
+    //sent_millis = millis();
   }
 
   // Toggle fpga power
