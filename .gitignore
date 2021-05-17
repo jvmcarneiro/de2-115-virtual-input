@@ -5,6 +5,7 @@ output_files/
 simulation/
 *.bak
 *.qws
+*.swp
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
