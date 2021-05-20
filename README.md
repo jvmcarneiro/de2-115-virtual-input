@@ -2,12 +2,11 @@
 
 Virtual GUI for controlling the Altera DE2-115 board.
 
-The program will generate signals for communicating with a microcontroller or
-directly with the FPGA.
+The program will generate signals for communication via serial.
 
 Also included in the repository files are implementations of an input signal
-multiplexer via Arduino Uno and a Verilog module for communication via the
-board's 14-pin connector.
+multiplexer via Arduino Uno and a Verilog module using the board's 14-pin
+connector.
 
 ## Prerequisites
 
@@ -29,7 +28,7 @@ The `python3` command may called `python` on your environment.
 - [x] Press and release bindings for the push buttons
 - [x] Event receiver on the FPGA
 - [x] Encode signal events on Arduino
-- [ ] Connect GUI to Arduino
-- [ ] Timer for turning off and cooling FPGA
+- [x] Connect GUI to Arduino
+- [x] Timer for turning off and cooling FPGA
 - [ ] Add support for USB
 - [ ] GUI menu for different communication protocols

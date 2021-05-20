@@ -145,7 +145,7 @@ def ser_exchange(ser, message, *args):
 
 
 def restart_jtagd():
-    """Restart the FPGA USB Blaster driver."""
+    """Restart the JTAG service."""
     subprocess.run(["killall", "jtagd"])
     subprocess.Popen(["/opt/intelFPGA/20.1/quartus/bin/jtagd"], shell=True)
 
@@ -450,7 +450,7 @@ menubar.add_cascade(label="Devices", menu=device_menu)
 
 file_menu.add_command(label="Open Quartus", command=launch_quartus)
 file_menu.add_command(label="Open Camera", command=launch_camera)
-file_menu.add_command(label="Restart driver", command=restart_jtagd)
+file_menu.add_command(label="Restart JTAG", command=restart_jtagd)
 file_menu.add_separator()
 file_menu.add_command(label="Exit", command=on_close)
 
