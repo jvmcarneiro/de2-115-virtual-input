@@ -38,14 +38,25 @@ Write:
 
 import tkinter as tk
 from tkinter import messagebox
+from threading import Timer
 from functools import partial
-import subprocess
-import sys
-import signal
 import serial                   # type: ignore
 import serial.tools.list_ports  # type: ignore
 import threading
-from threading import Timer
+import signal
+import subprocess
+import sys
+import os
+
+
+def resource_path(relative_path):
+    """Import data files from internal package data."""
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 
 def ser_exchange(ser, message, *args):
@@ -460,37 +471,37 @@ device_menu.add_command(label="Refresh", command=refresh_devices)
 
 
 # Create buttons
-powoff_img = tk.PhotoImage(file="img/power_off.png")
-powon_img = tk.PhotoImage(file="img/power_on.png")
+powoff_img = tk.PhotoImage(file=resource_path("img/power_off.png"))
+powon_img = tk.PhotoImage(file=resource_path("img/power_on.png"))
 power_sw = tk.Button(buttons, image=powoff_img, text="POW", compound="top",
                      state="disabled", command=power_toggle)
 power_sw.pack(side="left")
 
-resetoff_img = tk.PhotoImage(file="img/switch_off.png")
-reseton_img = tk.PhotoImage(file="img/switch_on.png")
+resetoff_img = tk.PhotoImage(file=resource_path("img/switch_off.png"))
+reseton_img = tk.PhotoImage(file=resource_path("img/switch_on.png"))
 reset_sw = tk.Button(buttons, image=resetoff_img, text="RESET", compound="top",
                      state="disabled", command=reset_toggle)
 reset_sw.pack(side="left", padx=10)
 
-btn0_img = tk.PhotoImage(file="img/pbutton0_unpressed.png")
+btn0_img = tk.PhotoImage(file=resource_path("img/pbutton0_unpressed.png"))
 btn0 = tk.Button(buttons, image=btn0_img, state="disabled")
 btn0.bind("<ButtonPress>", lambda event: btn_press(0))
 btn0.bind("<ButtonRelease>", lambda event: btn_release(0))
 btn0.pack(side="right", padx=2)
 
-btn1_img = tk.PhotoImage(file="img/pbutton1_unpressed.png")
+btn1_img = tk.PhotoImage(file=resource_path("img/pbutton1_unpressed.png"))
 btn1 = tk.Button(buttons, image=btn1_img, state="disabled")
 btn1.bind("<ButtonPress>", lambda event: btn_press(1))
 btn1.bind("<ButtonRelease>", lambda event: btn_release(1))
 btn1.pack(side="right", padx=2)
 
-btn2_img = tk.PhotoImage(file="img/pbutton2_unpressed.png")
+btn2_img = tk.PhotoImage(file=resource_path("img/pbutton2_unpressed.png"))
 btn2 = tk.Button(buttons, image=btn2_img, state="disabled")
 btn2.bind("<ButtonPress>", lambda event: btn_press(2))
 btn2.bind("<ButtonRelease>", lambda event: btn_release(2))
 btn2.pack(side="right", padx=2)
 
-btn3_img = tk.PhotoImage(file="img/pbutton3_unpressed.png")
+btn3_img = tk.PhotoImage(file=resource_path("img/pbutton3_unpressed.png"))
 btn3 = tk.Button(buttons, image=btn3_img, state="disabled")
 btn3.bind("<ButtonPress>", lambda event: btn_press(3))
 btn3.bind("<ButtonRelease>", lambda event: btn_release(3))
@@ -501,8 +512,8 @@ sw_row1 = tk.Frame(switches)
 sw_row0.pack()
 sw_row1.pack(pady=(5, 0))
 
-swon_img = tk.PhotoImage(file="img/switch_on.png")
-swoff_img = tk.PhotoImage(file="img/switch_off.png")
+swon_img = tk.PhotoImage(file=resource_path("img/switch_on.png"))
+swoff_img = tk.PhotoImage(file=resource_path("img/switch_off.png"))
 
 sw = [tk.Button()] * 18
 for i in reversed(range(18)):
