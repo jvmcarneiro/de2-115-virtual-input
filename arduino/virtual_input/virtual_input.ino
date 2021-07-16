@@ -55,13 +55,14 @@ void setup()
 {
   Serial.begin(9600);
   pinMode(2, OUTPUT);
-  pinMode(3, OUTPUT);
   pinMode(4, OUTPUT);
   pinMode(5, OUTPUT);
   pinMode(6, OUTPUT);
-  pinMode(7, OUTPUT);
   pinMode(8, OUTPUT);
+<<<<<<< HEAD:arduino/virtual_input/virtual_input.ino
   pinMode(9, OUTPUT);
+=======
+>>>>>>> 49b6235154643e8cccad1c1db12659801074b4ed:arduino/virtual_input/virtual_input.ino
 
   for (int j = 4; j<10; j++)
     digitalWrite(j, LOW);
@@ -131,8 +132,13 @@ void loop()
   }
 
   // Read received byte as bits and set output pins 
+<<<<<<< HEAD:arduino/virtual_input/virtual_input.ino
   else if (received >= 0 && received < 22) {
     for (int j = 0; j<6; j++) {
+=======
+  else if (received >= 0 && received < 7) {
+    for (int j = 0; j<3; j++) {
+>>>>>>> 49b6235154643e8cccad1c1db12659801074b4ed:arduino/virtual_input/virtual_input.ino
       bitread = bitRead(received, j);
       digitalWrite(j+4, bitread);
     }
@@ -145,8 +151,13 @@ void loop()
   }
 
   // Reset fpga to initial state 
+<<<<<<< HEAD:arduino/virtual_input/virtual_input.ino
   else if (received == 127) {
     for (int j = 0; j<6; j++) {
+=======
+  else if (received == 127 || received < 32) {
+    for (int j = 0; j<3; j++) {
+>>>>>>> 49b6235154643e8cccad1c1db12659801074b4ed:arduino/virtual_input/virtual_input.ino
       digitalWrite(j+4, HIGH);
     }
     delay(1);
