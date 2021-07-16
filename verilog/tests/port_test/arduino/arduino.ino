@@ -29,8 +29,8 @@ void setup()
 
 void loop() 
 {
-  while(!Serial.available()) {     
-    if (is_powered) {
+  while(!Serial.available()) {
+    if(is_connected){     
       delay(3000);
       digitalWrite(3, HIGH);
       delay(1000);

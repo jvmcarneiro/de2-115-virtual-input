@@ -36,7 +36,7 @@
 /** Currently using only 4 output data pins due to limited availability. **/
 
 byte power_pin = 2;
-byte control_pin = 8;
+byte control_pin = 3;
 int power_state = LOW;
 
 int received;
@@ -55,10 +55,13 @@ void setup()
 {
   Serial.begin(9600);
   pinMode(2, OUTPUT);
+  pinMode(3, OUTPUT);
   pinMode(4, OUTPUT);
   pinMode(5, OUTPUT);
   pinMode(6, OUTPUT);
+  pinMode(7, OUTPUT);
   pinMode(8, OUTPUT);
+  pinMode(9, OUTPUT);
 
   for (int j = 4; j<10; j++)
     digitalWrite(j, LOW);
@@ -128,8 +131,8 @@ void loop()
   }
 
   // Read received byte as bits and set output pins 
-  else if (received >= 0 && received < 7) {
-    for (int j = 0; j<3; j++) {
+  else if (received >= 0 && received < 22) {
+    for (int j = 0; j<6; j++) {
       bitread = bitRead(received, j);
       digitalWrite(j+4, bitread);
     }
@@ -142,8 +145,8 @@ void loop()
   }
 
   // Reset fpga to initial state 
-  else if (received == 127 || received < 32) {
-    for (int j = 0; j<3; j++) {
+  else if (received == 127) {
+    for (int j = 0; j<6; j++) {
       digitalWrite(j+4, HIGH);
     }
     delay(1);
