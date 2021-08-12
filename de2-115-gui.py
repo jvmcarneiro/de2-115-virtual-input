@@ -217,13 +217,8 @@ def refresh_devices():
     # Add new ports to device menu
     for port in ports:
         dev_label = port.device + " - " + str(port.description)
-        device_menu.insert_command(last_index - 1, label=dev_label,
+        device_menu.insert_command(max(0, last_index - 1), label=dev_label,
                                    command=lambda: toggle_connect(dev_label))
-
-    # Let user know that device menu is empty
-    if device_menu.type(0) == tk.SEPARATOR:
-        device_menu.insert_command(0, label="No device found",
-                                   state=tk.DISABLED)
 
 
 def toggle_connect(dev_label):
@@ -465,7 +460,6 @@ file_menu.add_command(label="Restart JTAG", command=restart_jtagd)
 file_menu.add_separator()
 file_menu.add_command(label="Exit", command=on_close)
 
-device_menu.add_command(label="No device found", state=tk.DISABLED)
 device_menu.add_separator()
 device_menu.add_command(label="Refresh", command=refresh_devices)
 
