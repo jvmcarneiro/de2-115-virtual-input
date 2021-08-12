@@ -20,7 +20,12 @@ multiplexer via Arduino Uno and a Verilog sample module using the board's
 python3 de2_115_gui.py
 ```
 
-Note: the `python3` command may be named `python` in your environment.
+## Compiling
+```bash
+python3 -m PyInstaller --onefile --add-data "img/:img/" de2-115-gui.py
+```
+
+Note: the `python3` command may be named just `python` in your environment.
 
 ## Milestones
 
