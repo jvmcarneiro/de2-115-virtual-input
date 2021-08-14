@@ -49,7 +49,8 @@ import sys
 import os
 
 
-# Desired serial port to connect to (/dev/ttyXXXX format)
+# Desired serial port to connect to ("/dev/ttyXXXX" format)
+#DEFAULT_DEVICE = "/dev/ttyUSB0"
 DEFAULT_DEVICE = None
 
 
@@ -193,7 +194,7 @@ def set_default_device():
     """List only desired default device."""
     global DEFAULT_DEVICE
     device = DEFAULT_DEVICE
-    device_menu.insert_command(max(0, last_index - 1), label=device,
+    device_menu.insert_command(0, label=device,
                                command=lambda: toggle_connect(device))
 
 
@@ -230,7 +231,7 @@ def refresh_devices():
     for port in ports:
         dev_label = port.device + " - " + str(port.description)
         device_menu.insert_command(max(0, last_index - 1), label=dev_label,
-                                   command=lambda: toggle_connect(dev_label))
+                                   command=lambda a = dev_label: toggle_connect(a))
 
 
 def toggle_connect(dev_label):
@@ -472,7 +473,7 @@ file_menu.add_command(label="Restart JTAG", command=restart_jtagd)
 file_menu.add_separator()
 file_menu.add_command(label="Exit", command=on_close)
 
-if !DEFAULT_DEVICE:
+if not DEFAULT_DEVICE:
     device_menu.add_separator()
     device_menu.add_command(label="Refresh", command=refresh_devices)
 
@@ -535,7 +536,7 @@ for i in reversed(range(18)):
 
 root.configure(menu=menubar)
 root.title("DE2-115 Virtual Input")
-if !DEFAULT_DEVICE:
+if not DEFAULT_DEVICE:
     refresh_devices()
 else:
     set_default_device()

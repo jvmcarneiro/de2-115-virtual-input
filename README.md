@@ -28,7 +28,7 @@ python3 -m PyInstaller --onefile --add-data "img/:img/" de2-115-gui.py
 ```
 
 ## Setting default serial port
-To list only one specific device, change the constant `DEFAULT_DEVICE` to the name of the port in `/dev/ttyXXXX` format.
+To list only one specific device, change the constant `DEFAULT_DEVICE` to the name of the port in `"/dev/ttyXXXX"` format.
 
 Determine `XXXX` by running `dmesg | grep tty`.
 
