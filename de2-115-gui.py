@@ -49,6 +49,10 @@ import sys
 import os
 
 
+# Desired serial port to connect to (/dev/ttyXXXX format)
+DEFAULT_DEVICE = None
+
+
 def resource_path(relative_path):
     """Import data files from internal package data."""
     try:
@@ -163,12 +167,12 @@ def restart_jtagd():
 
 def launch_quartus():
     """Open a Quartus instance."""
-    subprocess.Popen(["/opt/intelFPGA/20.1/quartus/bin/quartus"])
+    subprocess.Popen(["gtk-launch", "quartus"])
 
 
 def launch_camera():
     """Open a Cheese instance."""
-    subprocess.Popen(["/usr/bin/cheese"])
+    subprocess.Popen(["gtk-launch", "cheese"])
 
 
 def create_timer_idle():
@@ -183,6 +187,14 @@ def create_timer_max_on():
     global timer_max_on
     timer_max_on = Timer(595, timer_timeout)
     timer_max_on.daemon = True
+
+
+def set_default_device():
+    """List only desired default device."""
+    global DEFAULT_DEVICE
+    device = DEFAULT_DEVICE
+    device_menu.insert_command(max(0, last_index - 1), label=device,
+                               command=lambda: toggle_connect(device))
 
 
 def refresh_devices():
@@ -460,8 +472,9 @@ file_menu.add_command(label="Restart JTAG", command=restart_jtagd)
 file_menu.add_separator()
 file_menu.add_command(label="Exit", command=on_close)
 
-device_menu.add_separator()
-device_menu.add_command(label="Refresh", command=refresh_devices)
+if !DEFAULT_DEVICE:
+    device_menu.add_separator()
+    device_menu.add_command(label="Refresh", command=refresh_devices)
 
 
 # Create buttons
@@ -522,7 +535,10 @@ for i in reversed(range(18)):
 
 root.configure(menu=menubar)
 root.title("DE2-115 Virtual Input")
-refresh_devices()
+if !DEFAULT_DEVICE:
+    refresh_devices()
+else:
+    set_default_device()
 
 signal.signal(signal.SIGINT, on_close)
 signal.signal(signal.SIGTERM, on_close)

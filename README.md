@@ -20,12 +20,18 @@ multiplexer via Arduino Uno and a Verilog sample module using the board's
 python3 de2_115_gui.py
 ```
 
+Note: the `python3` command may be named just `python` in your environment.
+
 ## Compiling
 ```bash
 python3 -m PyInstaller --onefile --add-data "img/:img/" de2-115-gui.py
 ```
 
-Note: the `python3` command may be named just `python` in your environment.
+## Setting default serial port
+To list only one specific device, change the constant `DEFAULT_DEVICE` to the name of the port in `/dev/ttyXXXX` format.
+
+Determine `XXXX` by running `dmesg | grep tty`.
+
 
 ## Milestones
 
