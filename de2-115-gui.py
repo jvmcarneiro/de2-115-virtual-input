@@ -172,8 +172,8 @@ def launch_quartus():
 
 
 def launch_camera():
-    """Open a Cheese instance."""
-    subprocess.Popen(["gtk-launch", "cheese"])
+    """Open a Guvcview instance."""
+    subprocess.Popen(["gtk-launch", "guvcview"])
 
 
 def create_timer_idle():
