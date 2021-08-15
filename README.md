@@ -13,6 +13,8 @@ multiplexer via Arduino Uno and a Verilog sample module using the board's
 ## Prerequisites
 
 - python 3
+- tkinter
+- serial
 
 ## Running
 
