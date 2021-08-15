@@ -162,8 +162,9 @@ def ser_exchange(ser, message, *args):
 
 def restart_jtagd():
     """Restart the JTAG service."""
-    subprocess.run(["killall", "jtagd"])
-    subprocess.Popen(["/opt/intelFPGA/20.1/quartus/bin/jtagd"], shell=True)
+    home = os.path.expanduser('~')
+    subprocess.run(["{}/.local/bin/kill-jtagd".format(home)])
+    subprocess.run(["/opt/intelFPGA/20.1/quartus/bin/jtagd"])
 
 
 def launch_quartus():
