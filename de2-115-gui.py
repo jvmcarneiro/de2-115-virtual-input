@@ -168,12 +168,12 @@ def restart_jtagd():
 
 def launch_quartus():
     """Open a Quartus instance."""
-    subprocess.Popen(["quartus"])
+    subprocess.Popen("quartus", shell=True)
 
 
 def launch_camera():
     """Open a Guvcview instance."""
-    subprocess.Popen(["guvcview"])
+    subprocess.Popen("guvcview", shell=True)
 
 
 def create_timer_idle():

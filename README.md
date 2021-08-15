@@ -23,10 +23,10 @@ python3 de2_115_gui.py
 Note: the `python3` command may be named just `python` in your environment.
 
 
-## Setting default serial port
-To list only one specific device, change the constant `DEFAULT_DEVICE` to the name of the port in `"/dev/ttyXXXX"` format.
+## Setting default serial port and camera
+To list only one specific device, change the constant `DEFAULT_DEVICE` to the name of the port in `"/dev/ttyXXXX"` format. Determine `XXXX` by running `dmesg | grep tty`.
 
-Determine `XXXX` by running `dmesg | grep tty`.
+To determine a default camera device modify the `launch_camera()` function to launch `guvcview -d /dev/videoX`. Determine `X` by running `v4ls-ctl --list-devices`. 
 
 
 ## Compiling
