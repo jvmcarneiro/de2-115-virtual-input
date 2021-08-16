@@ -169,7 +169,7 @@ def restart_jtagd():
 
 def launch_quartus():
     """Open a Quartus instance."""
-    subprocess.run(["/opt/intelFPGA/20.1/quartus/bin/quartus"])
+    subprocess.Popen(["/opt/intelFPGA/20.1/quartus/bin/quartus"])
 
 
 def launch_camera():
